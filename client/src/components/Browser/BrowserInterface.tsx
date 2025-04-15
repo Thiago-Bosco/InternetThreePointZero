@@ -205,17 +205,13 @@ export default function BrowserInterface() {
       const isHttpUrl = url.startsWith('http://') || url.startsWith('https://');
       
       if (isHttpUrl) {
-        // Para URLs da web normal, atualizamos a aba mas mostramos um aviso "Simulação"
+        // Para URLs da web normal, usamos o proxy
         const domain = new URL(url).hostname;
+        const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
         
         updateTab(activeTabId, { 
           url: url,
-          title: domain, 
-        });
-        
-        toast({
-          title: "Navegação Web",
-          description: "Simulando acesso a conteúdo web tradicional",
+          title: domain,
         });
         
         // Registrar no histórico
@@ -227,31 +223,21 @@ export default function BrowserInterface() {
         
         await addToHistory(historyItem);
         
-        // Para demonstração, criamos um conteúdo simulado que representa o site
-        mockIpfsContent[url] = `
-          <html>
-            <head>
-              <title>Simulação de Web Tradicional</title>
-              <style>
-                body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; padding: 2rem; background: #f0f9ff; color: #0c4a6e; }
-                h1 { margin-bottom: 1rem; color: #0369a1; }
-                .notice { padding: 1rem; background: #e0f2fe; border-radius: 0.5rem; border: 1px solid #7dd3fc; margin-bottom: 1.5rem; }
-                .back { display: inline-block; margin-top: 1.5rem; color: #0284c7; text-decoration: none; }
-                .back:hover { text-decoration: underline; }
-              </style>
-            </head>
-            <body>
-              <h1>Simulação de Navegação Web</h1>
-              <div class="notice">
-                <p><strong>Observação:</strong> O Internet 3.0 é um navegador descentralizado focado primariamente em conteúdo IPFS.</p>
-                <p>A navegação para websites tradicionais (HTTP/HTTPS) está sendo simulada nesta versão de demonstração.</p>
-              </div>
-              <p>Você tentou acessar: <strong>${url}</strong></p>
-              <p>Em uma versão completa do Internet 3.0, você seria capaz de acessar tanto conteúdo IPFS quanto websites tradicionais.</p>
-              <a class="back" href="ipfs://QmdefaultHome">Voltar para a página inicial IPFS</a>
-            </body>
-          </html>
-        `;
+        // Verificar se o proxy está funcionando
+        try {
+          const response = await fetch(proxyUrl, { method: 'HEAD' });
+          if (!response.ok) {
+            throw new Error(`Erro ${response.status}`);
+          }
+        } catch (error) {
+          console.error('Erro ao acessar proxy:', error);
+          toast({
+            title: "Erro de conexão",
+            description: "Não foi possível acessar o site através do proxy",
+            variant: "destructive",
+          });
+          return;
+        }
       } else {
         // Processamento de conteúdo IPFS
         let ipfsHash = url;

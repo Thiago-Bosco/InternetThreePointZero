@@ -67,7 +67,7 @@ const mockIpfsContent: Record<string, string> = {
       <body>
         <h1>Tecnologia Blockchain e IPFS</h1>
         <p>A combinação de IPFS e Blockchain cria um sistema robusto para armazenamento e verificação de informações.</p>
-        
+
         <h2>Características principais:</h2>
         <ul>
           <li>Descentralização - Sem pontos centrais de controle</li>
@@ -75,7 +75,7 @@ const mockIpfsContent: Record<string, string> = {
           <li>Resolução de conteúdo baseada em hash - Localização por conteúdo, não por servidor</li>
           <li>Resistência à censura - O conteúdo permanece disponível mesmo sob tentativas de bloqueio</li>
         </ul>
-        
+
         <p>Hash: <span class="hash">QmSample2</span></p>
         <hr>
         <p><a href="ipfs://QmdefaultHome">Voltar para a página inicial</a></p>
@@ -92,21 +92,21 @@ interface ContentViewerProps {
 export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProps) {
   const [content, setContent] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
-  
+
   // Estado para controlar se deve exibir iframe direto para URLs HTTP
   const [isDirectHttpUrl, setIsDirectHttpUrl] = useState(false);
   const [httpUrl, setHttpUrl] = useState('');
-  
+
   useEffect(() => {
     if (!ipfsHash) {
       setContent('');
       setIsDirectHttpUrl(false);
       return;
     }
-    
+
     // Verificar se é uma URL HTTP/HTTPS completa
     const isHttpUrl = ipfsHash.startsWith('http://') || ipfsHash.startsWith('https://');
-    
+
     if (isHttpUrl) {
       // Definir para renderizar diretamente via iframe
       setIsDirectHttpUrl(true);
@@ -116,14 +116,14 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
       // Resetar para modo IPFS se não for HTTP
       setIsDirectHttpUrl(false);
     }
-    
+
     const loadContent = async () => {
       try {
         setError(null);
-        
+
         // Simulação de busca de conteúdo
         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         // Verificar se temos conteúdo simulado para este hash
         if (mockIpfsContent[ipfsHash]) {
           setContent(mockIpfsContent[ipfsHash]);
@@ -154,10 +154,10 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
         setError('Erro ao carregar conteúdo. Verifique se o endereço está correto.');
       }
     };
-    
+
     loadContent();
   }, [ipfsHash]);
-  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -165,7 +165,7 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
       </div>
     );
   }
-  
+
   if (error) {
     return (
       <div className="p-4 text-center">
@@ -176,7 +176,7 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
       </div>
     );
   }
-  
+
   if (!ipfsHash) {
     return (
       <div className="p-6 text-center">
@@ -187,64 +187,24 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
       </div>
     );
   }
-  
-  // Renderizar URL HTTP diretamente em um iframe com barra de status
+
+  // Renderizar URL HTTP através do proxy
   if (isDirectHttpUrl && httpUrl) {
-    // Verificar se é YouTube ou outro site que normalmente bloqueia iframes
-    const isYouTube = httpUrl.includes('youtube.com') || httpUrl.includes('youtu.be');
-    const isGoogleService = httpUrl.includes('google.com') || httpUrl.includes('gmail.com');
-    const isRestrictedSite = isYouTube || isGoogleService || 
-                            httpUrl.includes('facebook.com') || 
-                            httpUrl.includes('instagram.com') ||
-                            httpUrl.includes('twitter.com') ||
-                            httpUrl.includes('x.com');
-    
-    // Usar proxy para todos os sites, especialmente os que normalmente bloqueiam iframes
-    let displayUrl = `/api/proxy?url=${encodeURIComponent(httpUrl)}`;
-    let embeddingNotice = null;
-    
-    // Mostrar banner informativo para sites com modo de privacidade
-    if (isRestrictedSite) {
-      embeddingNotice = (
-        <div className="bg-blue-100 border-b border-blue-200 p-2 text-sm text-blue-800">
-          <div className="flex items-center">
-            <div className="mr-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <p>
-              <strong>Modo de Privacidade:</strong> Navegando em <span className="font-mono">{httpUrl}</span> através do proxy Internet 3.0
-            </p>
-          </div>
-        </div>
-      );
-    }
-    
+    const proxyUrl = `/api/proxy?url=${encodeURIComponent(httpUrl)}`;
+
     return (
-      <div className="h-full flex flex-col">
-        <div className="bg-blue-50 p-2 text-xs border-b border-blue-200 flex items-center justify-between">
-          <div>
-            <span className="font-semibold">Internet 3.0:</span> Navegando em conteúdo web tradicional
-          </div>
-          <div className="text-blue-600">
-            <a href="ipfs://QmdefaultHome" className="hover:underline">Voltar para IPFS</a>
-          </div>
-        </div>
-        <div className="flex-1 relative">
-          <iframe 
-            src={displayUrl}
-            title={`Web Content: ${displayUrl}`}
-            className="w-full h-full border-none absolute inset-0"
-            sandbox="allow-scripts allow-same-origin allow-forms"
-            referrerPolicy="no-referrer"
-          />
-          {embeddingNotice}
-        </div>
+      <div className="h-full">
+        <iframe 
+          src={proxyUrl}
+          title={`Web Content: ${httpUrl}`}
+          className="w-full h-full border-none"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+          referrerPolicy="no-referrer"
+        />
       </div>
     );
   }
-  
+
   // Renderizar conteúdo IPFS simulado em um iframe
   return (
     <div className="h-full">
