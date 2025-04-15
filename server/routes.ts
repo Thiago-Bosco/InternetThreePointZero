@@ -11,7 +11,7 @@ import {
   insertBrowsingHistorySchema 
 } from "@shared/schema";
 import { z } from "zod";
-import axios from 'axios'; // Import axios for making HTTP requests
+import { proxyHandler } from './proxy'; // Import proxyHandler from proxy.ts
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Endpoint simples para teste de disponibilidade
