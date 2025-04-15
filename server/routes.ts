@@ -295,6 +295,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: "Erro interno do servidor" });
     }
   });
+  
+  // Rota para o serviço de proxy (estilo Tor Browser)
+  app.get("/api/proxy", (req: Request, res: Response) => {
+    const url = req.query.url as string;
+    
+    if (!url) {
+      return res.status(400).json({ error: 'URL não fornecida' });
+    }
+    
+    // Encaminhar para o serviço de proxy Python
+    const proxyUrl = `http://localhost:8000/proxy?url=${encodeURIComponent(url)}`;
+    
+    res.redirect(proxyUrl);
+  });
 
   return httpServer;
 }

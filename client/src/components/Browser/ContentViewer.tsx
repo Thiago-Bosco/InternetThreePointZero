@@ -190,7 +190,7 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
   
   // Renderizar URL HTTP diretamente em um iframe com barra de status
   if (isDirectHttpUrl && httpUrl) {
-    // Verificar se é YouTube (que não permite ser exibido em iframe)
+    // Verificar se é YouTube ou outro site que normalmente bloqueia iframes
     const isYouTube = httpUrl.includes('youtube.com') || httpUrl.includes('youtu.be');
     const isGoogleService = httpUrl.includes('google.com') || httpUrl.includes('gmail.com');
     const isRestrictedSite = isYouTube || isGoogleService || 
@@ -199,38 +199,23 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
                             httpUrl.includes('twitter.com') ||
                             httpUrl.includes('x.com');
     
-    // URL alternativa
-    let displayUrl = httpUrl;
+    // Usar proxy para todos os sites, especialmente os que normalmente bloqueiam iframes
+    let displayUrl = `/api/proxy?url=${encodeURIComponent(httpUrl)}`;
     let embeddingNotice = null;
     
-    // Se for um site que não permite embedding, exiba uma mensagem especial
+    // Mostrar banner informativo para sites com modo de privacidade
     if (isRestrictedSite) {
       embeddingNotice = (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-white p-8">
-          <div className="bg-amber-50 border border-amber-200 p-4 rounded-md max-w-xl">
-            <h2 className="text-xl font-bold text-amber-700 mb-2">
-              Restrição de Segurança Web
-            </h2>
-            <p className="mb-4 text-amber-800">
-              O site <strong>{httpUrl}</strong> não permite ser incorporado em navegadores de terceiros devido a 
-              políticas de segurança (X-Frame-Options/Content-Security-Policy).
+        <div className="bg-blue-100 border-b border-blue-200 p-2 text-sm text-blue-800">
+          <div className="flex items-center">
+            <div className="mr-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p>
+              <strong>Modo de Privacidade:</strong> Navegando em <span className="font-mono">{httpUrl}</span> através do proxy Internet 3.0
             </p>
-            <p className="mb-4 text-amber-800">
-              Em uma implementação completa do Internet 3.0, este problema poderia ser resolvido com:
-            </p>
-            <ul className="list-disc pl-5 mb-4 text-amber-800">
-              <li>Implementação de um proxy de conteúdo no servidor</li>
-              <li>Desenvolvimento de um motor de renderização nativo</li>
-              <li>Implementação de uma extensão de navegador dedicada</li>
-            </ul>
-            <p className="text-sm text-amber-700">
-              Para fins de demonstração, você pode testar a navegação com sites que permitem embedding, como:
-            </p>
-            <ul className="list-disc pl-5 mt-2 text-sm text-blue-600">
-              <li><button onClick={() => window.location.href='https://example.com'} className="text-blue-600 hover:underline">example.com</button></li>
-              <li><button onClick={() => window.location.href='https://replit.com'} className="text-blue-600 hover:underline">replit.com</button></li>
-              <li><button onClick={() => window.location.href='https://wikipedia.org'} className="text-blue-600 hover:underline">wikipedia.org</button></li>
-            </ul>
           </div>
         </div>
       );
