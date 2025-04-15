@@ -93,51 +93,40 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
   const [content, setContent] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   
+  // Estado para controlar se deve exibir iframe direto para URLs HTTP
+  const [isDirectHttpUrl, setIsDirectHttpUrl] = useState(false);
+  const [httpUrl, setHttpUrl] = useState('');
+  
   useEffect(() => {
     if (!ipfsHash) {
       setContent('');
+      setIsDirectHttpUrl(false);
       return;
+    }
+    
+    // Verificar se é uma URL HTTP/HTTPS completa
+    const isHttpUrl = ipfsHash.startsWith('http://') || ipfsHash.startsWith('https://');
+    
+    if (isHttpUrl) {
+      // Definir para renderizar diretamente via iframe
+      setIsDirectHttpUrl(true);
+      setHttpUrl(ipfsHash);
+      return;
+    } else {
+      // Resetar para modo IPFS se não for HTTP
+      setIsDirectHttpUrl(false);
     }
     
     const loadContent = async () => {
       try {
         setError(null);
         
-        // Verificar se é uma URL HTTP/HTTPS completa
-        const isHttpUrl = ipfsHash.startsWith('http://') || ipfsHash.startsWith('https://');
-        
         // Simulação de busca de conteúdo
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Verificar se temos conteúdo simulado para este hash/URL
+        // Verificar se temos conteúdo simulado para este hash
         if (mockIpfsContent[ipfsHash]) {
           setContent(mockIpfsContent[ipfsHash]);
-        } else if (isHttpUrl) {
-          // Gerar uma interface para URLs HTTP que não foram processadas anteriormente
-          setContent(`
-            <html>
-              <head>
-                <title>Simulação de Web Tradicional</title>
-                <style>
-                  body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; padding: 2rem; background: #f0f9ff; color: #0c4a6e; }
-                  h1 { margin-bottom: 1rem; color: #0369a1; }
-                  .notice { padding: 1rem; background: #e0f2fe; border-radius: 0.5rem; border: 1px solid #7dd3fc; margin-bottom: 1.5rem; }
-                  .back { display: inline-block; margin-top: 1.5rem; color: #0284c7; text-decoration: none; }
-                  .back:hover { text-decoration: underline; }
-                </style>
-              </head>
-              <body>
-                <h1>Simulação de Navegação Web</h1>
-                <div class="notice">
-                  <p><strong>Observação:</strong> O Internet 3.0 é um navegador descentralizado focado primariamente em conteúdo IPFS.</p>
-                  <p>A navegação para websites tradicionais (HTTP/HTTPS) está sendo simulada nesta versão de demonstração.</p>
-                </div>
-                <p>Você tentou acessar: <strong>${ipfsHash}</strong></p>
-                <p>Em uma versão completa do Internet 3.0, você seria capaz de acessar tanto conteúdo IPFS quanto websites tradicionais.</p>
-                <a class="back" href="ipfs://QmdefaultHome">Voltar para a página inicial IPFS</a>
-              </body>
-            </html>
-          `);
         } else {
           // Se não tiver conteúdo específico IPFS, mostrar página de erro
           setContent(`
@@ -199,7 +188,32 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
     );
   }
   
-  // Renderizar conteúdo HTML dentro de um iframe para isolar
+  // Renderizar URL HTTP diretamente em um iframe com barra de status
+  if (isDirectHttpUrl && httpUrl) {
+    return (
+      <div className="h-full flex flex-col">
+        <div className="bg-blue-50 p-2 text-xs border-b border-blue-200 flex items-center justify-between">
+          <div>
+            <span className="font-semibold">Internet 3.0:</span> Navegando em conteúdo web tradicional
+          </div>
+          <div className="text-blue-600">
+            <a href="ipfs://QmdefaultHome" className="hover:underline">Voltar para IPFS</a>
+          </div>
+        </div>
+        <div className="flex-1 relative">
+          <iframe 
+            src={httpUrl}
+            title={`Web Content: ${httpUrl}`}
+            className="w-full h-full border-none absolute inset-0"
+            sandbox="allow-scripts allow-same-origin allow-forms"
+            referrerPolicy="no-referrer"
+          />
+        </div>
+      </div>
+    );
+  }
+  
+  // Renderizar conteúdo IPFS simulado em um iframe
   return (
     <div className="h-full">
       <iframe 
