@@ -297,22 +297,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Rota para o serviço de proxy (Node.js implementation)
-  app.get("/api/proxy", async (req: Request, res: Response) => {
-    const url = req.query.url as string;
-
-    if (!url) {
-      return res.status(400).json({ error: 'URL não fornecida' });
-    }
-
-    try {
-      const response = await axios.get(url);
-      res.status(response.status).send(response.data);
-    } catch (error: any) {
-      console.error("Proxy error:", error);
-      res.status(error.response ? error.response.status : 500).json({ error: 'Erro ao acessar a URL' });
-    }
-  });
+  // Rota para o serviço de proxy com suporte a todos métodos HTTP
+  app.all("/api/proxy", proxyHandler);
 
   return httpServer;
 }
