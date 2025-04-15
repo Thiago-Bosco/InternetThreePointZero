@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { useLocation, Link } from 'wouter';
-import { Home, Folder, MessageSquare, Rss, Shield } from 'lucide-react';
+import { Home, Folder, MessageSquare, Rss, Shield, Settings, Download } from 'lucide-react';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -68,12 +68,21 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </div>
             
             <div className="mt-auto px-2">
-              <div className="border-t border-border pt-4 mt-4">
+              <div className="border-t border-border pt-4 mt-4 space-y-1">
+                <Link href="/download">
+                  <a 
+                    className="flex items-center px-2 py-2 rounded-md text-sm bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/40 dark:text-blue-300 dark:hover:bg-blue-800/60 transition-colors"
+                  >
+                    <Download size={20} className="mr-3 flex-shrink-0" />
+                    <span className="hidden md:inline">Baixar Navegador</span>
+                  </a>
+                </Link>
+                
                 <a 
                   href="#" 
                   className="flex items-center px-2 py-2 rounded-md text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                 >
-                  <Shield size={20} className="mr-3 flex-shrink-0" />
+                  <Settings size={20} className="mr-3 flex-shrink-0" />
                   <span className="hidden md:inline">Configurações</span>
                 </a>
               </div>

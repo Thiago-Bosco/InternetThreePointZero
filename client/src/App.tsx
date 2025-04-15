@@ -7,6 +7,7 @@ import BrowserInterface from "./components/Browser/BrowserInterface";
 import ChatInterface from "./components/Chat/ChatInterface";
 import FeedComponent from "./components/Feed/FeedComponent";
 import IdentityManager from "./components/Identity/IdentityManager";
+import DownloadPage from "./pages/Download";
 import NotFound from "./pages/not-found";
 
 /**
@@ -119,21 +120,25 @@ function App() {
   // Aplicação principal
   return (
     <UserContextProvider>
-      <MainLayout>
-        <Switch>
-          <Route path="/" component={BrowserInterface} />
-          <Route path="/files" component={() => (
-            <div className="space-y-6">
-              <FileLibrary />
-              <FileUploader />
-            </div>
-          )} />
-          <Route path="/chat" component={ChatInterface} />
-          <Route path="/feed" component={FeedComponent} />
-          <Route path="/identity" component={IdentityManager} />
-          <Route component={NotFound} />
-        </Switch>
-      </MainLayout>
+      <P2PContextProvider>
+        <MainLayout>
+          <Switch>
+            <Route path="/" component={BrowserInterface} />
+            <Route path="/files" component={() => (
+              <div className="space-y-6">
+                <p className="bg-blue-50 p-4 rounded-md border border-blue-100 text-blue-800 mb-4">
+                  Módulo de compartilhamento de arquivos disponível para download nesta versão beta.
+                </p>
+              </div>
+            )} />
+            <Route path="/chat" component={ChatInterface} />
+            <Route path="/feed" component={FeedComponent} />
+            <Route path="/identity" component={IdentityManager} />
+            <Route path="/download" component={DownloadPage} />
+            <Route component={NotFound} />
+          </Switch>
+        </MainLayout>
+      </P2PContextProvider>
     </UserContextProvider>
   );
 }
