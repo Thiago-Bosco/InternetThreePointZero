@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Bookmark, Trash2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { Bookmark as BookmarkType } from '@shared/schema';
-import { useUser } from '@/context/UserContext';
+import { Bookmark, Star } from 'lucide-react';
+import { 
+  Popover, 
+  PopoverContent, 
+  PopoverTrigger 
+} from '@/components/ui/popover';
+
+interface BookmarkItem {
+  id: number;
+  title: string;
+  ipfsHash: string;
+  dateAdded: Date;
+}
 
 interface BookmarkManagerProps {
   onAddBookmark: () => void;
@@ -21,126 +22,136 @@ interface BookmarkManagerProps {
 
 export default function BookmarkManager({ 
   onAddBookmark, 
-  userId,
+  userId, 
   isAuthenticated 
 }: BookmarkManagerProps) {
-  const [bookmarks, setBookmarks] = useState<BookmarkType[]>([]);
+  const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
   
-  // Carregar favoritos quando o componente for montado
+  // Função para carregar favoritos do servidor
+  const loadBookmarks = async () => {
+    if (!isAuthenticated || !userId) {
+      setBookmarks([]);
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      // Simular carregamento de favoritos
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Favoritos simulados para demonstração
+      const mockBookmarks = [
+        {
+          id: 1,
+          title: 'Página inicial Internet 3.0',
+          ipfsHash: 'QmdefaultHome',
+          dateAdded: new Date()
+        },
+        {
+          id: 2,
+          title: 'Exemplo de página IPFS',
+          ipfsHash: 'QmSample1',
+          dateAdded: new Date()
+        },
+        {
+          id: 3,
+          title: 'Informações sobre Blockchain',
+          ipfsHash: 'QmSample2',
+          dateAdded: new Date()
+        }
+      ];
+      
+      setBookmarks(mockBookmarks);
+    } catch (error) {
+      console.error('Erro ao carregar favoritos:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   useEffect(() => {
     if (isAuthenticated && userId) {
       loadBookmarks();
     }
   }, [isAuthenticated, userId]);
   
-  const loadBookmarks = async () => {
-    if (!userId) return;
-    
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/users/${userId}/bookmarks`);
-      
-      if (!response.ok) {
-        throw new Error('Falha ao carregar favoritos');
-      }
-      
-      const data = await response.json();
-      setBookmarks(data);
-    } catch (error) {
-      console.error('Erro ao carregar favoritos:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar seus favoritos",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  const handleDeleteBookmark = async (id: number) => {
-    try {
-      const response = await fetch(`/api/bookmarks/${id}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        throw new Error('Falha ao excluir favorito');
-      }
-      
-      // Atualizar lista de favoritos
-      setBookmarks(prevBookmarks => prevBookmarks.filter(bookmark => bookmark.id !== id));
-      
-      toast({
-        title: "Favorito excluído",
-        description: "O favorito foi removido com sucesso",
-      });
-    } catch (error) {
-      console.error('Erro ao excluir favorito:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível excluir o favorito",
-        variant: "destructive",
-      });
-    }
-  };
-  
-  const handleBookmarkClick = (ipfsHash: string) => {
-    // Navegue para o hash IPFS (implementado por outro componente)
-    window.location.href = `ipfs://${ipfsHash}`;
+  const handleDelete = async (id: number) => {
+    // Simulação de exclusão
+    setBookmarks(prevBookmarks => 
+      prevBookmarks.filter(bookmark => bookmark.id !== id)
+    );
   };
   
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Bookmark className="h-[1.2rem] w-[1.2rem]" />
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button 
+          variant="outline" 
+          size="icon"
+          title="Gerenciar favoritos"
+        >
+          <Star size={16} />
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Favoritos</DropdownMenuLabel>
-        <DropdownMenuSeparator />
+      </PopoverTrigger>
+      <PopoverContent className="w-80 p-0" align="end">
+        <div className="flex items-center justify-between p-3 border-b">
+          <h3 className="font-medium">Favoritos</h3>
+          <Button 
+            variant="secondary" 
+            size="sm" 
+            onClick={onAddBookmark}
+            disabled={!isAuthenticated}
+          >
+            Adicionar
+          </Button>
+        </div>
         
-        {isLoading ? (
-          <DropdownMenuItem disabled>Carregando...</DropdownMenuItem>
-        ) : bookmarks.length > 0 ? (
-          <>
-            {bookmarks.map((bookmark) => (
-              <DropdownMenuItem 
-                key={bookmark.id}
-                className="flex justify-between items-center cursor-pointer"
-              >
-                <span 
-                  className="truncate flex-1"
-                  onClick={() => handleBookmarkClick(bookmark.ipfsHash)}
+        <div className="max-h-80 overflow-auto">
+          {!isAuthenticated ? (
+            <div className="p-4 text-center text-muted-foreground">
+              <p>Faça login para ver seus favoritos</p>
+            </div>
+          ) : isLoading ? (
+            <div className="flex justify-center p-4">
+              <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full"></div>
+            </div>
+          ) : bookmarks.length === 0 ? (
+            <div className="p-4 text-center text-muted-foreground">
+              <p>Nenhum favorito encontrado</p>
+            </div>
+          ) : (
+            <ul className="py-1">
+              {bookmarks.map((bookmark) => (
+                <li 
+                  key={bookmark.id}
+                  className="flex items-center px-3 py-2 hover:bg-muted/50 transition-colors"
                 >
-                  {bookmark.title}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="ml-2 h-6 w-6 p-0"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteBookmark(bookmark.id);
-                  }}
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              </DropdownMenuItem>
-            ))}
-          </>
-        ) : (
-          <DropdownMenuItem disabled>Nenhum favorito</DropdownMenuItem>
-        )}
-        
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={onAddBookmark}>
-          Adicionar página atual aos favoritos
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+                  <Bookmark size={14} className="mr-2 text-muted-foreground flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate font-medium">{bookmark.title}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      ipfs://{bookmark.ipfsHash}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0 ml-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(bookmark.id);
+                    }}
+                  >
+                    <Star className="h-4 w-4 fill-primary text-primary" />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

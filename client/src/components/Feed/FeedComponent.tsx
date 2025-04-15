@@ -1,300 +1,421 @@
-import { FeedPost } from '@shared/schema';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle
-} from '@/components/ui/card';
-import { useP2P } from '@/context/P2PContext';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useUser } from '@/context/UserContext';
+import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   MoreHorizontal, 
-  Globe, 
-  Calendar, 
-  User, 
+  ThumbsUp, 
+  MessageSquare, 
+  Share2, 
   Trash2,
-  ExternalLink,
-  MessageSquare
+  RefreshCw,
+  Globe
 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useToast } from '@/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-interface FeedComponentProps {
-  posts: FeedPost[];
-  isLoading: boolean;
-  isOwnFeed: boolean;
-  onDeletePost: (postId: number) => Promise<void>;
+// Tipos
+interface FeedPost {
+  id: number;
+  userId: number;
+  userName: string;
+  userAvatar?: string;
+  content: string;
+  ipfsHash: string;
+  datePosted: Date;
+  likes: number;
+  comments: number;
+  hasLiked?: boolean;
 }
 
-export default function FeedComponent({ 
-  posts, 
-  isLoading, 
-  isOwnFeed,
-  onDeletePost 
-}: FeedComponentProps) {
-  const { fetchIPFSContent } = useP2P();
-  const [expandedPostContent, setExpandedPostContent] = useState<Record<number, any>>({});
-  const [isLoadingContent, setIsLoadingContent] = useState<Record<number, boolean>>({});
-  const [deletePostId, setDeletePostId] = useState<number | null>(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+interface FeedComponentProps {
+  posts?: FeedPost[];
+  isLoading?: boolean;
+  isOwnFeed?: boolean;
+  onDeletePost?: (postId: number) => void;
+}
+
+export default function FeedComponent() {
+  const { isAuthenticated, currentUser } = useUser();
+  const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [newPostContent, setNewPostContent] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   
-  // Carregar conteúdo dos posts do IPFS quando o componente for montado
+  // Carregar posts do feed (simulação)
   useEffect(() => {
-    const loadPostContent = async () => {
-      for (const post of posts) {
-        if (!expandedPostContent[post.id]) {
-          await loadSinglePostContent(post);
-        }
+    const loadPosts = async () => {
+      setIsLoading(true);
+      
+      try {
+        // Simular carregamento de rede
+        await new Promise(resolve => setTimeout(resolve, 1200));
+        
+        // Posts simulados para demonstração
+        const mockPosts: FeedPost[] = [
+          {
+            id: 1,
+            userId: 1,
+            userName: 'Ana Costa',
+            content: 'Acabei de publicar um novo artigo sobre navegação descentralizada e Web 3.0. Compartilhei os arquivos via IPFS, confira!',
+            ipfsHash: 'QmV7Qi9Vz2CpNj4JKF6kKSpnfRwDrBESPHNjQwJxS5NRqd',
+            datePosted: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 horas atrás
+            likes: 12,
+            comments: 3,
+            hasLiked: false
+          },
+          {
+            id: 2,
+            userId: 2,
+            userName: 'Pedro Almeida',
+            content: 'Teste de upload de imagem usando IPFS. A distribuição P2P oferece uma alternativa interessante aos serviços centralizados tradicionais de hospedagem de imagens.',
+            ipfsHash: 'QmYwR9jM9pMTHVeEq1H63DNyBHR3DakvJFGQ16G9EHB7Pj',
+            datePosted: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 horas atrás
+            likes: 8,
+            comments: 2,
+            hasLiked: true
+          },
+          {
+            id: 3,
+            userId: 3,
+            userName: 'Internet 3.0 Oficial',
+            content: 'Lançamos oficialmente a versão beta do navegador Internet 3.0! Agora você pode explorar conteúdo descentralizado, compartilhar arquivos P2P e muito mais. #descentralizado #p2p #ipfs',
+            ipfsHash: 'QmZQXTEBgr1ZfQkS4jx4ZjYmWK6FY1VuZayKBLECNPSvQQ',
+            datePosted: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 dia atrás
+            likes: 42,
+            comments: 15,
+            hasLiked: false
+          }
+        ];
+        
+        setPosts(mockPosts);
+      } catch (error) {
+        console.error('Erro ao carregar feed:', error);
+        toast({
+          title: 'Erro ao carregar feed',
+          description: 'Não foi possível obter as publicações',
+          variant: 'destructive'
+        });
+      } finally {
+        setIsLoading(false);
       }
     };
     
-    loadPostContent();
-  }, [posts]);
+    loadPosts();
+  }, [toast]);
   
-  const loadSinglePostContent = async (post: FeedPost) => {
-    if (expandedPostContent[post.id]) return;
+  // Publicar novo post
+  const handleSubmitPost = async () => {
+    if (!newPostContent.trim() || !isAuthenticated) return;
     
-    setIsLoadingContent(prev => ({ ...prev, [post.id]: true }));
+    setIsSubmitting(true);
     
     try {
-      const content = await fetchIPFSContent(post.ipfsHash);
+      // Simular envio para a rede IPFS
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Converter o conteúdo para texto e depois para objeto JSON
-      const textDecoder = new TextDecoder('utf-8');
-      const contentText = textDecoder.decode(content);
-      const contentObj = JSON.parse(contentText);
+      // Criar novo post
+      const newPost: FeedPost = {
+        id: Date.now(),
+        userId: currentUser?.id || 0,
+        userName: currentUser?.username || 'Usuário',
+        content: newPostContent,
+        ipfsHash: `Qm${Math.random().toString(36).substring(2, 15)}`, // Hash aleatório para simulação
+        datePosted: new Date(),
+        likes: 0,
+        comments: 0,
+        hasLiked: false
+      };
       
-      setExpandedPostContent(prev => ({ ...prev, [post.id]: contentObj }));
+      // Adicionar ao feed
+      setPosts(prev => [newPost, ...prev]);
+      setNewPostContent('');
+      
+      toast({
+        title: 'Publicação enviada',
+        description: 'Seu conteúdo foi publicado na rede descentralizada'
+      });
     } catch (error) {
-      console.error(`Erro ao carregar conteúdo do post ${post.id}:`, error);
-      
-      // Adicionar um objeto de erro ao estado para exibir na UI
-      setExpandedPostContent(prev => ({ 
-        ...prev, 
-        [post.id]: { error: 'Não foi possível carregar o conteúdo' } 
-      }));
+      console.error('Erro ao publicar:', error);
+      toast({
+        title: 'Erro ao publicar',
+        description: 'Não foi possível enviar sua publicação',
+        variant: 'destructive'
+      });
     } finally {
-      setIsLoadingContent(prev => ({ ...prev, [post.id]: false }));
+      setIsSubmitting(false);
     }
   };
   
-  const handleDeleteClick = (postId: number) => {
-    setDeletePostId(postId);
-    setIsDeleteDialogOpen(true);
+  // Curtir/descurtir post
+  const handleToggleLike = (postId: number) => {
+    setPosts(prevPosts => 
+      prevPosts.map(post => {
+        if (post.id === postId) {
+          const hasLiked = !post.hasLiked;
+          const likeDelta = hasLiked ? 1 : -1;
+          
+          return {
+            ...post,
+            hasLiked,
+            likes: post.likes + likeDelta
+          };
+        }
+        return post;
+      })
+    );
   };
   
-  const confirmDelete = async () => {
-    if (deletePostId !== null) {
-      try {
-        await onDeletePost(deletePostId);
-        setIsDeleteDialogOpen(false);
-      } catch (error) {
-        console.error('Erro ao excluir post:', error);
-        toast({
-          title: "Erro",
-          description: "Não foi possível excluir o post",
-          variant: "destructive",
-        });
-      }
+  // Excluir post
+  const handleDeletePost = (postId: number) => {
+    setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+    
+    toast({
+      title: 'Publicação excluída',
+      description: 'A publicação foi removida com sucesso'
+    });
+  };
+  
+  // Formatar data relativa
+  const formatRelativeTime = (date: Date): string => {
+    const now = new Date();
+    const diffSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffSeconds < 60) return `${diffSeconds} segundos atrás`;
+    
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    if (diffMinutes < 60) return `${diffMinutes} minutos atrás`;
+    
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) return `${diffHours} horas atrás`;
+    
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 30) return `${diffDays} dias atrás`;
+    
+    const diffMonths = Math.floor(diffDays / 30);
+    return `${diffMonths} meses atrás`;
+  };
+  
+  // Renderizar iniciais para avatar
+  const getInitials = (name: string): string => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  };
+  
+  // Renderizar componente de publicação
+  const renderPublishForm = () => {
+    if (!isAuthenticated) {
+      return (
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="text-center py-4">
+              <p className="mb-4 text-muted-foreground">
+                Faça login para publicar conteúdo no feed descentralizado
+              </p>
+              <Button>Fazer Login</Button>
+            </div>
+          </CardContent>
+        </Card>
+      );
     }
+    
+    return (
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <div className="flex gap-3">
+            <Avatar>
+              <AvatarFallback>
+                {currentUser?.username ? getInitials(currentUser.username) : 'U'}
+              </AvatarFallback>
+            </Avatar>
+            
+            <div className="flex-1">
+              <Textarea
+                placeholder="O que você gostaria de compartilhar?"
+                value={newPostContent}
+                onChange={(e) => setNewPostContent(e.target.value)}
+                className="mb-3 resize-none"
+                rows={3}
+              />
+              
+              <div className="flex justify-between items-center">
+                <div className="text-xs text-muted-foreground flex items-center">
+                  <Globe size={14} className="mr-1" />
+                  <span>Público • Armazenado em IPFS</span>
+                </div>
+                
+                <Button 
+                  onClick={handleSubmitPost} 
+                  disabled={!newPostContent.trim() || isSubmitting}
+                >
+                  {isSubmitting ? 'Publicando...' : 'Publicar'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
   };
   
-  // Formatar data
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
-  };
-  
-  // Verificar se há um anexo
-  const hasAttachments = (post: FeedPost) => {
-    return post.attachments && post.attachments.length > 0;
-  };
-  
-  if (isLoading) {
+  // Renderizar feed de posts
+  const renderFeed = () => {
+    if (isLoading) {
+      return (
+        <div className="flex justify-center py-12">
+          <div className="flex flex-col items-center gap-2">
+            <RefreshCw className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Carregando publicações...</p>
+          </div>
+        </div>
+      );
+    }
+    
+    if (posts.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground mb-2">Nenhuma publicação encontrada</p>
+          <p className="text-sm">Seja o primeiro a publicar algo!</p>
+        </div>
+      );
+    }
+    
     return (
       <div className="space-y-6">
-        {Array(3).fill(0).map((_, i) => (
-          <Card key={i}>
-            <CardHeader>
-              <div className="flex justify-between">
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <div>
-                    <Skeleton className="h-4 w-24 mb-1" />
-                    <Skeleton className="h-3 w-32" />
+        {posts.map((post) => (
+          <Card key={post.id}>
+            <CardContent className="pt-6">
+              <div className="flex gap-3">
+                <Avatar>
+                  <AvatarImage src={post.userAvatar} alt={post.userName} />
+                  <AvatarFallback>{getInitials(post.userName)}</AvatarFallback>
+                </Avatar>
+                
+                <div className="flex-1">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-medium">{post.userName}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {formatRelativeTime(post.datePosted)}
+                      </p>
+                    </div>
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal size={16} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => {
+                          navigator.clipboard.writeText(`ipfs://${post.ipfsHash}`);
+                          toast({
+                            title: 'Link copiado',
+                            description: 'Link IPFS copiado para a área de transferência',
+                          });
+                        }}>
+                          Copiar link IPFS
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>Ver detalhes</DropdownMenuItem>
+                        
+                        {post.userId === currentUser?.id && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => handleDeletePost(post.id)}
+                            >
+                              Excluir publicação
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  
+                  <div className="mt-2 mb-4">
+                    <p className="whitespace-pre-wrap">{post.content}</p>
+                    <p className="text-xs font-mono text-muted-foreground mt-2">
+                      Hash IPFS: {post.ipfsHash}
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center justify-between border-t pt-3">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`gap-1 ${post.hasLiked ? 'text-primary' : ''}`}
+                      onClick={() => handleToggleLike(post.id)}
+                    >
+                      <ThumbsUp size={16} className={post.hasLiked ? 'fill-primary' : ''} />
+                      <span>{post.likes}</span>
+                    </Button>
+                    
+                    <Button variant="ghost" size="sm" className="gap-1">
+                      <MessageSquare size={16} />
+                      <span>{post.comments}</span>
+                    </Button>
+                    
+                    <Button variant="ghost" size="sm" className="gap-1">
+                      <Share2 size={16} />
+                      <span>Compartilhar</span>
+                    </Button>
                   </div>
                 </div>
-                <Skeleton className="h-8 w-8 rounded-full" />
               </div>
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-4 w-full mb-2" />
-              <Skeleton className="h-4 w-[90%] mb-2" />
-              <Skeleton className="h-4 w-[80%]" />
             </CardContent>
-            <CardFooter>
-              <Skeleton className="h-8 w-20" />
-            </CardFooter>
           </Card>
         ))}
       </div>
     );
-  }
-  
-  if (posts.length === 0) {
-    return (
-      <div className="text-center p-12">
-        <MessageSquare className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-        <h3 className="text-lg font-medium mb-2">Nenhum post encontrado</h3>
-        <p className="text-muted-foreground">
-          {isOwnFeed 
-            ? 'Você ainda não criou nenhum post. Crie seu primeiro post para começar!' 
-            : 'Este usuário ainda não fez nenhuma postagem.'}
-        </p>
-      </div>
-    );
-  }
+  };
   
   return (
-    <div className="space-y-6">
-      {posts.map((post) => {
-        const postContent = expandedPostContent[post.id];
-        const isLoadingThisPost = isLoadingContent[post.id];
-        
-        return (
-          <Card key={post.id}>
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div className="flex gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <User className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-base">
-                      {postContent?.username || 'Usuário'}
-                    </CardTitle>
-                    <CardDescription className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {formatDate(post.datePosted.toString())}
-                    </CardDescription>
-                  </div>
-                </div>
-                
-                {isOwnFeed && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem 
-                        className="text-destructive focus:text-destructive"
-                        onClick={() => handleDeleteClick(post.id)}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Excluir Post
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </div>
-            </CardHeader>
-            
-            <CardContent className="space-y-3">
-              {isLoadingThisPost ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-[90%]" />
-                  <Skeleton className="h-4 w-[70%]" />
-                </div>
-              ) : postContent?.error ? (
-                <div className="p-3 bg-destructive/10 rounded-md text-destructive text-sm">
-                  {postContent.error}
-                </div>
-              ) : (
-                <>
-                  <div className="whitespace-pre-wrap">
-                    {postContent?.content || post.content}
-                  </div>
-                  
-                  {/* Exibir anexos se houver */}
-                  {hasAttachments(post) && (
-                    <div className="pt-2">
-                      <p className="text-sm font-medium mb-2">Anexos:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {post.attachments.map((hash, index) => (
-                          <Badge key={index} variant="outline" className="flex items-center gap-1">
-                            <span className="truncate max-w-[150px]">{hash.substring(0, 10)}...</span>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-5 w-5 p-0 ml-1"
-                              onClick={() => window.open(`ipfs://${hash}`, '_blank')}
-                            >
-                              <ExternalLink className="h-3 w-3" />
-                            </Button>
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-            </CardContent>
-            
-            <CardFooter>
-              <div className="flex items-center text-xs text-muted-foreground">
-                <Globe className="h-3 w-3 mr-1" />
-                <span>Publicado na rede IPFS</span>
-              </div>
-            </CardFooter>
-          </Card>
-        );
-      })}
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle>Feed Descentralizado</CardTitle>
+      </CardHeader>
       
-      {/* Diálogo de confirmação de exclusão */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirmar exclusão</DialogTitle>
-            <DialogDescription>
-              Tem certeza que deseja excluir este post? Esta ação não pode ser desfeita.
-            </DialogDescription>
-          </DialogHeader>
+      <CardContent className="h-[calc(100%-65px)] overflow-auto">
+        <Tabs defaultValue="feed">
+          <TabsList className="mb-6">
+            <TabsTrigger value="feed">Feed Global</TabsTrigger>
+            <TabsTrigger value="following">Seguindo</TabsTrigger>
+            <TabsTrigger value="my-posts">Minhas Publicações</TabsTrigger>
+          </TabsList>
           
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-              Cancelar
-            </Button>
-            <Button variant="destructive" onClick={confirmDelete}>
-              Excluir
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+          <TabsContent value="feed">
+            {renderPublishForm()}
+            {renderFeed()}
+          </TabsContent>
+          
+          <TabsContent value="following">
+            <div className="text-center py-12 text-muted-foreground">
+              <p>Recurso disponível em breve!</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="my-posts">
+            <div className="text-center py-12 text-muted-foreground">
+              <p>Recurso disponível em breve!</p>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 }

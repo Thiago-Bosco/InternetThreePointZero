@@ -1,7 +1,7 @@
-import { useState, KeyboardEvent, FormEvent } from 'react';
+import { useState, FormEvent, KeyboardEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, RefreshCw } from 'lucide-react';
+import { RefreshCw, ArrowRight, Search } from 'lucide-react';
 
 interface AddressBarProps {
   url: string;
@@ -10,68 +10,66 @@ interface AddressBarProps {
 }
 
 export default function AddressBar({ url, isLoading, onNavigate }: AddressBarProps) {
-  const [inputValue, setInputValue] = useState(url);
+  const [inputUrl, setInputUrl] = useState(url);
   
-  // Atualizar o valor de entrada quando a URL mudar
+  // Atualizar o input quando a URL mudar externamente
   useState(() => {
-    setInputValue(url);
+    setInputUrl(url);
   });
   
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (inputValue.trim()) {
-      onNavigate(inputValue.trim());
+    
+    if (inputUrl.trim()) {
+      onNavigate(inputUrl.trim());
     }
   };
   
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      e.preventDefault();
-      if (inputValue.trim()) {
-        onNavigate(inputValue.trim());
-      }
+      handleSubmit(e);
     }
   };
   
   const handleRefresh = () => {
-    if (url) {
-      onNavigate(url);
-    }
+    onNavigate(url);
   };
   
   return (
-    <div className="flex-1 flex items-center gap-2">
-      <form onSubmit={handleSubmit} className="flex-1 flex items-center gap-2">
-        <div className="flex-1 relative">
-          <Input
-            type="text"
-            placeholder="Digite um hash IPFS ou ipfs://..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="pl-9 bg-card"
-          />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        </div>
-        
-        <Button 
-          type="submit" 
-          size="sm" 
-          variant="ghost"
-          disabled={isLoading}
-        >
-          IR
-        </Button>
-      </form>
-      
-      <Button
-        size="sm"
-        variant="ghost"
+    <form onSubmit={handleSubmit} className="flex-1 flex items-center gap-1">
+      <Button 
+        type="button"
+        variant="outline" 
+        size="icon"
+        disabled={isLoading}
+        title="Atualizar"
         onClick={handleRefresh}
-        disabled={isLoading || !url}
       >
-        <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+        <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
       </Button>
-    </div>
+      
+      <div className="relative flex-1">
+        <div className="absolute inset-y-0 left-2 flex items-center pointer-events-none">
+          <Search size={16} className="text-muted-foreground" />
+        </div>
+        <Input
+          value={inputUrl}
+          onChange={(e) => setInputUrl(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Digite um hash IPFS ou ipfs://..."
+          className="pl-8"
+          disabled={isLoading}
+        />
+      </div>
+      
+      <Button 
+        type="submit" 
+        size="icon"
+        disabled={isLoading || !inputUrl.trim()}
+        title="Navegar"
+      >
+        <ArrowRight size={16} />
+      </Button>
+    </form>
   );
 }

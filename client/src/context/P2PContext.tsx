@@ -1,10 +1,9 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { useUser } from "./UserContext";
-import { initializeIPFS, addFileToIPFS, getFromIPFS } from "@/lib/ipfs";
-import { createPeerConnection, setupWebRTC, sendMessage } from "@/lib/webrtc";
+import { useToast } from "@/hooks/use-toast";
 
+// Estado da conexão P2P
 interface P2PState {
-  ipfsNode: any; // IPFS node instance
+  ipfsNode: any; // IPFS node instance (tipo mais específico seria importado de ipfs-core)
   isIPFSReady: boolean;
   peerConnections: Record<string, RTCPeerConnection>;
   dataChannels: Record<string, RTCDataChannel>;
@@ -12,6 +11,7 @@ interface P2PState {
   messages: Record<string, Array<{sender: string, content: string, timestamp: Date}>>;
 }
 
+// Interface de contexto P2P
 interface P2PContextType {
   state: P2PState;
   uploadFile: (file: File) => Promise<string>;
@@ -21,397 +21,291 @@ interface P2PContextType {
   sendMessageToPeer: (peerId: string, message: string) => Promise<void>;
 }
 
+// Criação do contexto
 const P2PContext = createContext<P2PContextType | undefined>(undefined);
 
-export function P2PContextProvider({ children }: { children: ReactNode }) {
-  const { currentUser, isAuthenticated } = useUser();
-  const [state, setState] = useState<P2PState>({
-    ipfsNode: null,
-    isIPFSReady: false,
-    peerConnections: {},
-    dataChannels: {},
-    connectedPeers: [],
-    messages: {},
-  });
-
-  // Inicializar IPFS quando o componente for montado
-  useEffect(() => {
-    const setupIPFS = async () => {
-      try {
-        const node = await initializeIPFS();
-        
-        setState(prev => ({
-          ...prev,
-          ipfsNode: node,
-          isIPFSReady: true,
-        }));
-        
-        console.log("IPFS inicializado com sucesso");
-      } catch (error) {
-        console.error("Erro ao inicializar IPFS:", error);
-      }
-    };
-
-    setupIPFS();
-
-    // Limpar recursos ao desmontar
-    return () => {
-      // Fechar conexões WebRTC
-      Object.values(state.peerConnections).forEach(connection => {
-        connection.close();
-      });
-      
-      // Desligar nó IPFS
-      if (state.ipfsNode) {
-        state.ipfsNode.stop().catch((err: any) => {
-          console.error("Erro ao desligar IPFS:", err);
-        });
-      }
-    };
-  }, []);
-
-  // Configurar WebSocket para sinalização quando o usuário estiver autenticado
-  useEffect(() => {
-    // Não inicializar WebSocket no primeiro carregamento para resolver problemas de conexão
-    // Somente conectar quando o usuário estiver autenticado
-    if (!isAuthenticated || !currentUser) return;
-
-    // Verificar primeiro se a API está acessível antes de tentar WebSocket
-    const checkApiAndConnect = async () => {
-      try {
-        // Testar conexão com o servidor primeiro
-        const response = await fetch('/api/test', { method: 'HEAD' });
-        if (!response.ok) throw new Error(`API respondeu com status ${response.status}`);
-        
-        console.log("API acessível, tentando conectar WebSocket");
-        
-        // URL segura para WebSocket baseada no protocolo atual
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host = window.location.host;
-        const socket = new WebSocket(`${protocol}//${host}`);
-        
-        // Definir timeout para detectar problemas de conexão
-        const connectionTimeout = setTimeout(() => {
-          console.error("Timeout na conexão WebSocket");
-          socket.close();
-        }, 5000);
-        
-        socket.onopen = () => {
-          clearTimeout(connectionTimeout);
-          console.log("Conexão WebSocket estabelecida para sinalização");
-          
-          // Anunciar presença
-          if (currentUser) {
-            try {
-              socket.send(JSON.stringify({
-                type: "announce",
-                userId: currentUser.id,
-                username: currentUser.username,
-                publicKey: currentUser.publicKey,
-              }));
-            } catch (error) {
-              console.error("Erro ao enviar anúncio:", error);
-            }
-          }
-        };
-        
-        socket.onmessage = async (event) => {
-          try {
-            const data = JSON.parse(event.data);
-            
-            // Lidar com diferentes tipos de mensagens de sinalização
-            switch (data.type) {
-              case "announce":
-                console.log(`Usuário anunciado: ${data.username}`);
-                break;
-              case "offer":
-                if (data.target === currentUser?.id) {
-                  const pc = await createPeerConnection(data.sender);
-                  pc.setRemoteDescription(new RTCSessionDescription(data.offer));
-                  const answer = await pc.createAnswer();
-                  await pc.setLocalDescription(answer);
-                  
-                  socket.send(JSON.stringify({
-                    type: "answer",
-                    target: data.sender,
-                    sender: currentUser.id,
-                    answer,
-                  }));
-                  
-                  setState(prev => ({
-                    ...prev,
-                    peerConnections: {
-                      ...prev.peerConnections,
-                      [data.sender]: pc,
-                    },
-                  }));
-                }
-                break;
-              case "answer":
-                if (data.target === currentUser?.id) {
-                  const pc = state.peerConnections[data.sender];
-                  if (pc) {
-                    await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-                  }
-                }
-                break;
-              case "ice-candidate":
-                if (data.target === currentUser?.id) {
-                  const pc = state.peerConnections[data.sender];
-                  if (pc) {
-                    await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-                  }
-                }
-                break;
-            }
-          } catch (error) {
-            console.error("Erro ao processar mensagem WebSocket:", error);
-          }
-        };
-        
-        socket.onclose = (event) => {
-          console.log(`Conexão WebSocket fechada: Código ${event.code}, Razão: ${event.reason || 'Nenhuma razão fornecida'}`);
-        };
-        
-        socket.onerror = (error) => {
-          console.error("Erro na conexão WebSocket:", error);
-        };
-        
-        // Retornar função de limpeza
-        return socket;
-      } catch (error) {
-        console.error("Falha ao verificar API ou conectar WebSocket:", error);
-        return null;
-      }
-    };
-    
-    // Iniciar com um pequeno atraso para garantir que o resto da aplicação esteja carregado
-    const socketInitTimeout = setTimeout(() => {
-      checkApiAndConnect().then(socket => {
-        if (socket) {
-          // Armazenar referência para limpeza posterior
-          websocketRef.current = socket;
-        }
-      });
-    }, 2000);
-    
-    // Referência para o socket WebSocket
-    const websocketRef = { current: null as WebSocket | null };
-    
-    // Limpar recursos
-    return () => {
-      clearTimeout(socketInitTimeout);
-      if (websocketRef.current) {
-        websocketRef.current.close();
-      }
-    };
-  }, [currentUser, isAuthenticated, state.peerConnections]);
-
-  // Função para fazer upload de arquivo para IPFS
-  const uploadFile = async (file: File): Promise<string> => {
-    if (!state.isIPFSReady) {
-      throw new Error("IPFS não está pronto");
-    }
-    
-    try {
-      const hash = await addFileToIPFS(state.ipfsNode, file);
-      
-      // Registrar o arquivo no servidor
-      if (currentUser) {
-        await fetch("/api/files", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: currentUser.id,
-            fileName: file.name,
-            fileSize: file.size,
-            ipfsHash: hash,
-            isPublic: true,
-            mimeType: file.type,
-          }),
-        });
-      }
-      
-      return hash;
-    } catch (error) {
-      console.error("Erro ao fazer upload de arquivo:", error);
-      throw error;
-    }
-  };
-
-  // Função para buscar conteúdo do IPFS
-  const fetchIPFSContent = async (hash: string): Promise<any> => {
-    if (!state.isIPFSReady) {
-      throw new Error("IPFS não está pronto");
-    }
-    
-    try {
-      const content = await getFromIPFS(state.ipfsNode, hash);
-      
-      // Registrar no histórico de navegação se o usuário estiver autenticado
-      if (currentUser) {
-        await fetch("/api/history", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: currentUser.id,
-            ipfsHash: hash,
-            title: `IPFS Content: ${hash}`,
-          }),
-        });
-      }
-      
-      return content;
-    } catch (error) {
-      console.error("Erro ao buscar conteúdo IPFS:", error);
-      throw error;
-    }
-  };
-
-  // Função para conectar a um peer
-  const connectToPeer = async (peerId: string, publicKey: string): Promise<void> => {
-    if (!currentUser) {
-      throw new Error("Usuário não autenticado");
-    }
-    
-    try {
-      // Criar uma conexão WebRTC
-      const { peerConnection, dataChannel } = await setupWebRTC(peerId);
-      
-      // Configurar ouvintes de eventos para o canal de dados
-      dataChannel.onmessage = (event) => {
-        const messageData = JSON.parse(event.data);
-        
-        setState(prev => {
-          const peerMessages = prev.messages[peerId] || [];
-          return {
-            ...prev,
-            messages: {
-              ...prev.messages,
-              [peerId]: [
-                ...peerMessages,
-                {
-                  sender: peerId,
-                  content: messageData.content,
-                  timestamp: new Date(messageData.timestamp),
-                }
-              ]
-            }
-          };
-        });
-      };
-      
-      // Atualizar estado
-      setState(prev => ({
-        ...prev,
-        peerConnections: {
-          ...prev.peerConnections,
-          [peerId]: peerConnection,
-        },
-        dataChannels: {
-          ...prev.dataChannels,
-          [peerId]: dataChannel,
-        },
-        connectedPeers: [...prev.connectedPeers, peerId],
-      }));
-      
-      // Registrar o contato no servidor se não existir
-      await fetch("/api/contacts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: currentUser.id,
-          contactUsername: peerId,
-          contactPublicKey: publicKey,
-          lastConnected: new Date(),
-        }),
-      });
-    } catch (error) {
-      console.error("Erro ao conectar ao peer:", error);
-      throw error;
-    }
-  };
-
-  // Função para desconectar de um peer
-  const disconnectFromPeer = (peerId: string): void => {
-    const connection = state.peerConnections[peerId];
-    const channel = state.dataChannels[peerId];
-    
-    if (channel) {
-      channel.close();
-    }
-    
-    if (connection) {
-      connection.close();
-    }
-    
-    setState(prev => {
-      const { [peerId]: _, ...remainingConnections } = prev.peerConnections;
-      const { [peerId]: __, ...remainingChannels } = prev.dataChannels;
-      return {
-        ...prev,
-        peerConnections: remainingConnections,
-        dataChannels: remainingChannels,
-        connectedPeers: prev.connectedPeers.filter(id => id !== peerId),
-      };
-    });
-  };
-
-  // Função para enviar mensagem para um peer
-  const sendMessageToPeer = async (peerId: string, message: string): Promise<void> => {
-    const channel = state.dataChannels[peerId];
-    
-    if (!channel || channel.readyState !== "open") {
-      throw new Error("Canal de dados não está aberto");
-    }
-    
-    const messageData = {
-      content: message,
-      timestamp: new Date().toISOString(),
-    };
-    
-    await sendMessage(channel, messageData);
-    
-    // Atualizar estado local com a mensagem enviada
-    setState(prev => {
-      const peerMessages = prev.messages[peerId] || [];
-      return {
-        ...prev,
-        messages: {
-          ...prev.messages,
-          [peerId]: [
-            ...peerMessages,
-            {
-              sender: currentUser?.username || "me",
-              content: message,
-              timestamp: new Date(),
-            }
-          ]
-        }
-      };
-    });
-  };
-
-  return (
-    <P2PContext.Provider
-      value={{
-        state,
-        uploadFile,
-        fetchIPFSContent,
-        connectToPeer,
-        disconnectFromPeer,
-        sendMessageToPeer,
-      }}
-    >
-      {children}
-    </P2PContext.Provider>
-  );
-}
-
+// Hook para usar o contexto
 export function useP2P() {
   const context = useContext(P2PContext);
   if (context === undefined) {
     throw new Error("useP2P deve ser usado dentro de um P2PContextProvider");
   }
   return context;
+}
+
+// Função auxiliar para simular atraso
+const simulateDelay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Provedor de contexto P2P
+export function P2PContextProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<P2PState>({
+    ipfsNode: null,
+    isIPFSReady: false,
+    peerConnections: {},
+    dataChannels: {},
+    connectedPeers: [],
+    messages: {}
+  });
+  const { toast } = useToast();
+
+  // Inicializar IPFS (simulação)
+  useEffect(() => {
+    const initializeIPFS = async () => {
+      try {
+        // Simulação de inicialização IPFS
+        await simulateDelay(1500);
+        
+        setState(prev => ({
+          ...prev,
+          ipfsNode: { /* Simulação de nó IPFS */ },
+          isIPFSReady: true
+        }));
+        
+        console.log("Simulação: Nó IPFS inicializado com sucesso");
+      } catch (error) {
+        console.error("Erro ao inicializar IPFS:", error);
+        toast({
+          title: "Erro de Conexão",
+          description: "Não foi possível inicializar o nó IPFS",
+          variant: "destructive"
+        });
+      }
+    };
+    
+    initializeIPFS();
+    
+    // Limpeza na desmontagem do componente
+    return () => {
+      // Aqui seria feito o cleanup do nó IPFS
+      console.log("Simulação: Fechando conexões IPFS e WebRTC");
+    };
+  }, [toast]);
+
+  // Função para upload de arquivo para IPFS (simulação)
+  const uploadFile = async (file: File): Promise<string> => {
+    if (!state.isIPFSReady) {
+      throw new Error("IPFS não está pronto. Aguarde a inicialização.");
+    }
+    
+    try {
+      // Simulação de upload para IPFS
+      await simulateDelay(file.size / 50000); // Tempo de simulação baseado no tamanho do arquivo
+      
+      // Gerar um hash IPFS fictício para demonstração
+      const ipfsHash = "Qm" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      
+      toast({
+        title: "Upload concluído",
+        description: `Arquivo adicionado à rede IPFS com hash: ${ipfsHash.substring(0, 10)}...`
+      });
+      
+      return ipfsHash;
+    } catch (error) {
+      console.error("Erro ao fazer upload do arquivo:", error);
+      toast({
+        title: "Erro no upload",
+        description: "Falha ao carregar o arquivo para a rede IPFS",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
+  // Função para buscar conteúdo do IPFS (simulação)
+  const fetchIPFSContent = async (hash: string): Promise<any> => {
+    if (!state.isIPFSReady) {
+      throw new Error("IPFS não está pronto. Aguarde a inicialização.");
+    }
+    
+    try {
+      // Simulação de busca no IPFS
+      await simulateDelay(800);
+      
+      // Conteúdo simulado para demonstração
+      const mockContent = `
+        <html>
+          <head><title>Conteúdo IPFS</title></head>
+          <body>
+            <h1>Conteúdo IPFS</h1>
+            <p>Hash: ${hash}</p>
+            <p>Este é um conteúdo simulado para demonstração.</p>
+          </body>
+        </html>
+      `;
+      
+      // Converter string para ArrayBuffer (simulando o formato retornado pelo IPFS)
+      const encoder = new TextEncoder();
+      return encoder.encode(mockContent);
+    } catch (error) {
+      console.error("Erro ao buscar conteúdo IPFS:", error);
+      toast({
+        title: "Erro na busca",
+        description: "Não foi possível recuperar o conteúdo da rede IPFS",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
+  // Função para conectar a um par P2P (simulação)
+  const connectToPeer = async (peerId: string, publicKey: string): Promise<void> => {
+    try {
+      // Verificar se já está conectado
+      if (state.connectedPeers.includes(peerId)) {
+        return;
+      }
+      
+      // Simulação de conexão WebRTC
+      await simulateDelay(1200);
+      
+      // Atualizar estado com nova conexão simulada
+      setState(prev => ({
+        ...prev,
+        connectedPeers: [...prev.connectedPeers, peerId],
+        peerConnections: {
+          ...prev.peerConnections,
+          [peerId]: {} as RTCPeerConnection
+        },
+        dataChannels: {
+          ...prev.dataChannels,
+          [peerId]: {} as RTCDataChannel
+        },
+        messages: {
+          ...prev.messages,
+          [peerId]: []
+        }
+      }));
+      
+      toast({
+        title: "Conexão estabelecida",
+        description: `Conectado ao par ${peerId.substring(0, 8)}...`
+      });
+    } catch (error) {
+      console.error("Erro ao conectar ao par:", error);
+      toast({
+        title: "Erro de conexão",
+        description: "Não foi possível conectar ao par",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
+  // Função para desconectar de um par P2P (simulação)
+  const disconnectFromPeer = (peerId: string): void => {
+    try {
+      // Verificar se está conectado
+      if (!state.connectedPeers.includes(peerId)) {
+        return;
+      }
+      
+      // Atualizar estado removendo conexão
+      setState(prev => {
+        const { [peerId]: _, ...remainingPeerConnections } = prev.peerConnections;
+        const { [peerId]: __, ...remainingDataChannels } = prev.dataChannels;
+        
+        return {
+          ...prev,
+          connectedPeers: prev.connectedPeers.filter(id => id !== peerId),
+          peerConnections: remainingPeerConnections,
+          dataChannels: remainingDataChannels
+        };
+      });
+      
+      toast({
+        title: "Desconectado",
+        description: `Desconectado do par ${peerId.substring(0, 8)}...`
+      });
+    } catch (error) {
+      console.error("Erro ao desconectar do par:", error);
+      toast({
+        title: "Erro ao desconectar",
+        description: "Ocorreu um problema ao tentar desconectar do par",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Função para enviar mensagem a um par (simulação)
+  const sendMessageToPeer = async (peerId: string, message: string): Promise<void> => {
+    try {
+      // Verificar se está conectado
+      if (!state.connectedPeers.includes(peerId)) {
+        throw new Error("Não conectado ao par especificado");
+      }
+      
+      // Simulação de envio de mensagem
+      await simulateDelay(300);
+      
+      // Adicionar mensagem enviada ao histórico
+      const timestamp = new Date();
+      setState(prev => ({
+        ...prev,
+        messages: {
+          ...prev.messages,
+          [peerId]: [
+            ...(prev.messages[peerId] || []),
+            {
+              sender: "self",
+              content: message,
+              timestamp
+            }
+          ]
+        }
+      }));
+      
+      // Simulação de recebimento de mensagem após um atraso
+      setTimeout(() => {
+        // Simular resposta automática
+        const responses = [
+          "Entendi, continue...",
+          "Interessante! Conte-me mais sobre isso.",
+          "Ok, estou acompanhando.",
+          "Isso é fascinante! Como funciona?",
+          "Hmm, deixe-me pensar sobre isso."
+        ];
+        
+        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        
+        setState(prev => ({
+          ...prev,
+          messages: {
+            ...prev.messages,
+            [peerId]: [
+              ...(prev.messages[peerId] || []),
+              {
+                sender: peerId,
+                content: randomResponse,
+                timestamp: new Date()
+              }
+            ]
+          }
+        }));
+      }, 1500 + Math.random() * 3000);
+    } catch (error) {
+      console.error("Erro ao enviar mensagem:", error);
+      toast({
+        title: "Erro ao enviar mensagem",
+        description: "Não foi possível enviar a mensagem ao par",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
+  // Objeto de contexto
+  const contextValue: P2PContextType = {
+    state,
+    uploadFile,
+    fetchIPFSContent,
+    connectToPeer,
+    disconnectFromPeer,
+    sendMessageToPeer
+  };
+
+  return (
+    <P2PContext.Provider value={contextValue}>
+      {children}
+    </P2PContext.Provider>
+  );
 }
