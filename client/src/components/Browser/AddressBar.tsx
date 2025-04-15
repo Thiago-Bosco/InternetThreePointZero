@@ -56,7 +56,7 @@ export default function AddressBar({ url, isLoading, onNavigate }: AddressBarPro
           value={inputUrl}
           onChange={(e) => setInputUrl(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Digite um hash IPFS ou ipfs://..."
+          placeholder="Digite um hash IPFS, ipfs://... ou https://..."
           className="pl-8"
           disabled={isLoading}
         />

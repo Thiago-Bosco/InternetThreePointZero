@@ -201,69 +201,122 @@ export default function BrowserInterface() {
     setIsLoading(true);
     
     try {
-      // Determinar se é um hash IPFS ou um URL formatado
-      let ipfsHash = url;
+      // Verificar se é um URL HTTP/HTTPS ou um hash IPFS
+      const isHttpUrl = url.startsWith('http://') || url.startsWith('https://');
       
-      // Se for uma URL formatada como ipfs://hash
-      if (url.startsWith('ipfs://')) {
-        ipfsHash = url.replace('ipfs://', '');
-      }
-      
-      // Limpar qualquer prefixo /ipfs/
-      if (ipfsHash.startsWith('/ipfs/')) {
-        ipfsHash = ipfsHash.replace('/ipfs/', '');
-      }
-      
-      // Criar hash se vazio
-      if (!ipfsHash) {
-        ipfsHash = 'QmdefaultHome';
-      }
-      
-      // Atualizar aba com o novo URL
-      updateTab(activeTabId, { 
-        url: `ipfs://${ipfsHash}`,
-        title: `IPFS: ${ipfsHash.substring(0, 10)}...`, 
-      });
-      
-      // Simular busca de conteúdo IPFS
-      await fetchIPFSContent(ipfsHash);
-      
-      // Registrar no histórico local
-      const historyItem = {
-        url: `ipfs://${ipfsHash}`,
-        title: `IPFS: ${ipfsHash}`,
-        timestamp: Date.now()
-      };
-      
-      await addToHistory(historyItem);
-      
-      // Registrar no servidor se autenticado
-      if (isAuthenticated && currentUser) {
-        try {
-          await fetch('/api/history', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              userId: currentUser.id,
-              ipfsHash,
-              title: `IPFS: ${ipfsHash}`,
-            }),
-          });
-        } catch (error) {
-          console.error('Erro ao registrar histórico no servidor:', error);
+      if (isHttpUrl) {
+        // Para URLs da web normal, atualizamos a aba mas mostramos um aviso "Simulação"
+        const domain = new URL(url).hostname;
+        
+        updateTab(activeTabId, { 
+          url: url,
+          title: domain, 
+        });
+        
+        toast({
+          title: "Navegação Web",
+          description: "Simulando acesso a conteúdo web tradicional",
+        });
+        
+        // Registrar no histórico
+        const historyItem = {
+          url: url,
+          title: domain,
+          timestamp: Date.now()
+        };
+        
+        await addToHistory(historyItem);
+        
+        // Para demonstração, criamos um conteúdo simulado que representa o site
+        mockIpfsContent[url] = `
+          <html>
+            <head>
+              <title>Simulação de Web Tradicional</title>
+              <style>
+                body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; padding: 2rem; background: #f0f9ff; color: #0c4a6e; }
+                h1 { margin-bottom: 1rem; color: #0369a1; }
+                .notice { padding: 1rem; background: #e0f2fe; border-radius: 0.5rem; border: 1px solid #7dd3fc; margin-bottom: 1.5rem; }
+                .back { display: inline-block; margin-top: 1.5rem; color: #0284c7; text-decoration: none; }
+                .back:hover { text-decoration: underline; }
+              </style>
+            </head>
+            <body>
+              <h1>Simulação de Navegação Web</h1>
+              <div class="notice">
+                <p><strong>Observação:</strong> O Internet 3.0 é um navegador descentralizado focado primariamente em conteúdo IPFS.</p>
+                <p>A navegação para websites tradicionais (HTTP/HTTPS) está sendo simulada nesta versão de demonstração.</p>
+              </div>
+              <p>Você tentou acessar: <strong>${url}</strong></p>
+              <p>Em uma versão completa do Internet 3.0, você seria capaz de acessar tanto conteúdo IPFS quanto websites tradicionais.</p>
+              <a class="back" href="ipfs://QmdefaultHome">Voltar para a página inicial IPFS</a>
+            </body>
+          </html>
+        `;
+      } else {
+        // Processamento de conteúdo IPFS
+        let ipfsHash = url;
+        
+        // Se for uma URL formatada como ipfs://hash
+        if (url.startsWith('ipfs://')) {
+          ipfsHash = url.replace('ipfs://', '');
         }
+        
+        // Limpar qualquer prefixo /ipfs/
+        if (ipfsHash.startsWith('/ipfs/')) {
+          ipfsHash = ipfsHash.replace('/ipfs/', '');
+        }
+        
+        // Criar hash se vazio
+        if (!ipfsHash) {
+          ipfsHash = 'QmdefaultHome';
+        }
+        
+        // Atualizar aba com o novo URL
+        updateTab(activeTabId, { 
+          url: `ipfs://${ipfsHash}`,
+          title: `IPFS: ${ipfsHash.substring(0, 10)}...`, 
+        });
+        
+        // Simular busca de conteúdo IPFS
+        await fetchIPFSContent(ipfsHash);
+        
+        // Registrar no histórico local
+        const historyItem = {
+          url: `ipfs://${ipfsHash}`,
+          title: `IPFS: ${ipfsHash}`,
+          timestamp: Date.now()
+        };
+        
+        await addToHistory(historyItem);
+        
+        // Registrar no servidor se autenticado
+        if (isAuthenticated && currentUser) {
+          try {
+            await fetch('/api/history', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId: currentUser.id,
+                ipfsHash,
+                title: `IPFS: ${ipfsHash}`,
+              }),
+            });
+          } catch (error) {
+            console.error('Erro ao registrar histórico no servidor:', error);
+          }
+        }
+        
+        toast({
+          title: "Navegação bem-sucedida",
+          description: `Conteúdo IPFS carregado: ${ipfsHash.substring(0, 8)}...`,
+        });
       }
-      
-      toast({
-        title: "Navegação bem-sucedida",
-        description: `Conteúdo IPFS carregado: ${ipfsHash.substring(0, 8)}...`,
-      });
     } catch (error) {
       console.error('Erro ao navegar para URL:', error);
       
       toast({
         title: "Erro de navegação",
-        description: "Não foi possível carregar o conteúdo IPFS",
+        description: "Não foi possível carregar o conteúdo",
         variant: "destructive",
       });
       

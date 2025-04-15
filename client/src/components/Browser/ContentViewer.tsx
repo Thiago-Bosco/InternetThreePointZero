@@ -103,14 +103,43 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
       try {
         setError(null);
         
-        // Simulação de busca IPFS
+        // Verificar se é uma URL HTTP/HTTPS completa
+        const isHttpUrl = ipfsHash.startsWith('http://') || ipfsHash.startsWith('https://');
+        
+        // Simulação de busca de conteúdo
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Verificar se temos conteúdo simulado para este hash
+        // Verificar se temos conteúdo simulado para este hash/URL
         if (mockIpfsContent[ipfsHash]) {
           setContent(mockIpfsContent[ipfsHash]);
+        } else if (isHttpUrl) {
+          // Gerar uma interface para URLs HTTP que não foram processadas anteriormente
+          setContent(`
+            <html>
+              <head>
+                <title>Simulação de Web Tradicional</title>
+                <style>
+                  body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; padding: 2rem; background: #f0f9ff; color: #0c4a6e; }
+                  h1 { margin-bottom: 1rem; color: #0369a1; }
+                  .notice { padding: 1rem; background: #e0f2fe; border-radius: 0.5rem; border: 1px solid #7dd3fc; margin-bottom: 1.5rem; }
+                  .back { display: inline-block; margin-top: 1.5rem; color: #0284c7; text-decoration: none; }
+                  .back:hover { text-decoration: underline; }
+                </style>
+              </head>
+              <body>
+                <h1>Simulação de Navegação Web</h1>
+                <div class="notice">
+                  <p><strong>Observação:</strong> O Internet 3.0 é um navegador descentralizado focado primariamente em conteúdo IPFS.</p>
+                  <p>A navegação para websites tradicionais (HTTP/HTTPS) está sendo simulada nesta versão de demonstração.</p>
+                </div>
+                <p>Você tentou acessar: <strong>${ipfsHash}</strong></p>
+                <p>Em uma versão completa do Internet 3.0, você seria capaz de acessar tanto conteúdo IPFS quanto websites tradicionais.</p>
+                <a class="back" href="ipfs://QmdefaultHome">Voltar para a página inicial IPFS</a>
+              </body>
+            </html>
+          `);
         } else {
-          // Se não tiver conteúdo específico, mostrar página de erro
+          // Se não tiver conteúdo específico IPFS, mostrar página de erro
           setContent(`
             <html>
               <head>
@@ -132,8 +161,8 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
           `);
         }
       } catch (err) {
-        console.error('Erro ao carregar conteúdo IPFS:', err);
-        setError('Erro ao carregar conteúdo. Certifique-se que o hash IPFS está correto.');
+        console.error('Erro ao carregar conteúdo:', err);
+        setError('Erro ao carregar conteúdo. Verifique se o endereço está correto.');
       }
     };
     
