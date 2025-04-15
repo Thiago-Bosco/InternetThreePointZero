@@ -1,0 +1,74 @@
+Quero que você me ajude a desenvolver um projeto completo chamado **"Internet 3.0"**.
+
+### 🌐 O que é a Internet 3.0?
+
+É uma nova forma de navegar, se comunicar e compartilhar arquivos **sem servidores centralizados**.  
+Ela combina funcionalidades de **navegador + rede social + mensageiro + nuvem de arquivos**, mas tudo de forma **descentralizada, criptografada e sob controle do usuário**.
+
+### 🧠 Tecnologias envolvidas:
+- **IPFS ou DAT** → Para hospedar arquivos e sites de forma distribuída
+- **WebRTC** → Para conexões P2P em tempo real (chats, chamadas, arquivos)
+- **Libp2p / DHT** → Para descoberta de peers e roteamento descentralizado
+- **Web3 / Criptografia** → Para autenticação e controle de identidade
+- **Electron / Tauri** → Para empacotar como aplicativo de desktop
+
+---
+
+### 🧱 Estrutura do Projeto:
+
+#### 1. 🧭 Navegador Descentralizado (Frontend)
+
+- Interface parecida com um navegador comum (abas, barra de endereço, bookmarks)
+- Permite acesso a conteúdos IPFS ou DAT via hash ou link curto
+- Leitor de conteúdo local com HTML/CSS renderizado offline
+
+#### 2. 📁 Armazenamento Descentralizado (Local + IPFS)
+
+- O usuário escolhe o que compartilhar e o que manter local
+- Possui um “Dropbox descentralizado” onde você adiciona arquivos e gera links IPFS
+
+#### 3. 🧑‍🤝‍🧑 Camada Social e de Mensagens
+
+- Interface estilo feed (como Facebook, X) mas alimentada por dados P2P
+- Chat entre usuários via WebRTC com criptografia ponta a ponta
+- Cada usuário tem sua “bolha” pessoal: uma identidade com conteúdo próprio hospedado localmente
+
+#### 4. 🔐 Identidade Pessoal + Criptografia
+
+- Cada usuário tem sua própria chave pública/privada
+- Login sem senhas, usando assinatura criptográfica local
+- Compartilhamento de conteúdo baseado em permissões (como "só meus amigos")
+
+---
+
+### 📦 MVP do Projeto:
+1. Uma interface web (ou app desktop) com barra de navegação P2P
+2. Upload de arquivos e geração de links IPFS
+3. Chat entre dois navegadores usando WebRTC
+4. Feed pessoal que pode ser hospedado e lido por outros via IPFS
+
+---
+
+### 🧩 Stack sugerida:
+- **Frontend**: React.js, TailwindCSS
+- **P2P Core**: IPFS, WebRTC, libp2p, PeerJS
+- **Desktop (opcional)**: Electron ou Tauri
+- **Criptografia**: libsodium.js ou ethers.js (para assinatura de identidade)
+
+---
+
+### 🔥 Objetivo:
+Criar a base de um navegador descentralizado que possa ser expandido no futuro para:
+
+- Grupos privados
+- Compartilhamento de mídia (tipo YouTube descentralizado)
+- Aplicações colaborativas offline/online
+- Identidade descentralizada permanente
+
+Comece com uma interface que:
+- Navega IPFS links
+- Permite upload de arquivos para IPFS
+- Inicia um chat P2P básico
+- Mostra o feed pessoal de um usuário local
+
+🚀 Vamos construir isso juntos.
