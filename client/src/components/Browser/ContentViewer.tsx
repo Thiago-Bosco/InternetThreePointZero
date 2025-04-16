@@ -55,11 +55,48 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
               </div>
             </div>
           `);
+        } else if (ipfsHash.startsWith('search:')) {
+          const query = ipfsHash.replace('search:', '');
+          setContent(`
+            <div class="p-6">
+              <div class="mb-6">
+                <h2 class="text-2xl font-bold">Resultados para: "${query}"</h2>
+              </div>
+              <div class="space-y-4">
+                <div class="bg-card rounded-lg p-4 hover:bg-accent/5 transition-colors">
+                  <h3 class="text-lg font-semibold text-primary mb-2">
+                    <a href="#" class="hover:underline">Resultado 1</a>
+                  </h3>
+                  <p class="text-muted-foreground">Descrição do resultado encontrado...</p>
+                  <div class="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                    <span>IPFS</span>
+                    <span>•</span>
+                    <span>Hash: Qm...</span>
+                  </div>
+                </div>
+                
+                <div class="bg-card rounded-lg p-4 hover:bg-accent/5 transition-colors">
+                  <h3 class="text-lg font-semibold text-primary mb-2">
+                    <a href="#" class="hover:underline">Resultado 2</a>
+                  </h3>
+                  <p class="text-muted-foreground">Outro resultado relevante...</p>
+                  <div class="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                    <span>IPFS</span>
+                    <span>•</span>
+                    <span>Hash: Qm...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `);
         } else {
           setContent(`
             <div class="p-4 text-center">
               <h2 class="text-2xl font-bold mb-4">Conteúdo não encontrado</h2>
               <p class="text-gray-600">O conteúdo com o hash ${ipfsHash} não está disponível.</p>
+              <div class="mt-4">
+                <p class="text-sm text-muted-foreground">Tente pesquisar por outro termo ou verificar o hash IPFS</p>
+              </div>
             </div>
           `);
         }

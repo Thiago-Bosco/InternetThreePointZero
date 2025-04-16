@@ -49,29 +49,15 @@ export default function AddressBar({ url, isLoading, onNavigate }: AddressBarPro
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    const trimmedUrl = inputUrl.trim();
 
-    const query = inputUrl.trim();
-    if (!query) return;
-
-    // Se começar com ?, é uma busca por palavra-chave
-    if (query.startsWith('?')) {
-      const searchTerm = query.substring(1).toLowerCase();
-      const results = Object.entries(mockIpfsContent)
-        .filter(([hash, content]) => {
-          const { keywords, title, description } = content;
-          return keywords.some(k => k.includes(searchTerm)) ||
-                 title.toLowerCase().includes(searchTerm) ||
-                 description.toLowerCase().includes(searchTerm);
-        })
-        .map(([hash]) => hash);
-
-      if (results.length > 0) {
-        onNavigate(`ipfs://${results[0]}`);
-      } else {
-        onNavigate('ipfs://search-not-found');
-      }
+    // Se não for uma URL válida, tratar como pesquisa
+    if (!trimmedUrl.startsWith('http://') && 
+        !trimmedUrl.startsWith('https://') && 
+        !trimmedUrl.startsWith('ipfs://')) {
+      onNavigate(`search:${trimmedUrl}`);
     } else {
-      onNavigate(query);
+      onNavigate(trimmedUrl);
     }
   };
 
