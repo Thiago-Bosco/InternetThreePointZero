@@ -35,13 +35,16 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
 
         if (ipfsHash.includes('youtube.com') || ipfsHash.includes('youtu.be')) {
           // Tratamento especial para vídeos do YouTube
-          const videoId = ipfsHash.split('v=')[1] || ipfsHash.split('/').pop();
+          const videoId = ipfsHash.includes('v=') 
+            ? ipfsHash.split('v=')[1].split('&')[0]
+            : ipfsHash.split('/').pop();
+            
           setContent(`
-            <div class="aspect-video w-full">
+            <div class="aspect-video w-full max-w-5xl mx-auto">
               <iframe 
                 width="100%" 
                 height="100%" 
-                src="https://www.youtube.com/embed/${videoId}"
+                src="https://www.youtube.com/embed/${videoId}?autoplay=0"
                 frameborder="0" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                 allowfullscreen>
