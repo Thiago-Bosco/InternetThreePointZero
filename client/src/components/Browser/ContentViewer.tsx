@@ -1,35 +1,28 @@
 import { useEffect, useState } from 'react';
 
 // Simulação de conteúdo IPFS para demonstração
-const mockIpfsContent: Record<string, string> = {
-  'QmdefaultHome': `
-    <html>
-      <head>
-        <title>Internet 3.0 Home</title>
-        <style>
-          body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; line-height: 1.6; }
-          h1 { color: #3366cc; }
-          ul { padding-left: 1.5rem; }
-          li { margin-bottom: 0.5rem; }
-        </style>
-      </head>
-      <body>
-        <h1>Bem-vindo à Internet 3.0</h1>
-        <p>Este é o navegador descentralizado que permite acessar conteúdo IPFS, compartilhar arquivos P2P e muito mais.</p>
-        <ul>
-          <li><strong>Acesso a conteúdo descentralizado</strong> - Navegue em páginas hospedadas no IPFS</li>
-          <li><strong>Compartilhamento de arquivos</strong> - Compartilhe arquivos diretamente com outros usuários</li>
-          <li><strong>Chat P2P seguro</strong> - Comunique-se de forma privada e segura</li>
-          <li><strong>Feed social descentralizado</strong> - Publique e interaja sem intermediários</li>
-        </ul>
-        <p>Para testar a navegação, digite um dos seguintes hashes na barra de endereço:</p>
-        <ul>
-          <li>QmSample1 - Página de exemplo</li>
-          <li>QmSample2 - Informações sobre blockchain</li>
-        </ul>
-      </body>
-    </html>
-  `,
+const mockIpfsContent: Record<string, string | { title: string; description: string; keywords: string[]; content: string }> = {
+  'QmdefaultHome': {
+    title: 'Internet 3.0 Home',
+    description: 'Página inicial da Internet 3.0',
+    keywords: ['home', 'ipfs', 'p2p', 'descentralizado', 'inicio'],
+    content: `
+      <html>
+        <head><title>Internet 3.0 Home</title></head>
+        <body>
+          <h1>Bem-vindo à Internet 3.0</h1>
+          <p>Este é o navegador descentralizado que permite acessar conteúdo IPFS, compartilhar arquivos P2P e muito mais.</p>
+          <ul>
+            <li>Acesso a conteúdo descentralizado</li>
+            <li>Compartilhamento de arquivos</li>
+            <li>Chat P2P seguro</li>
+            <li>Feed social descentralizado</li>
+          </ul>
+          <div id="search-results"></div>
+        </body>
+      </html>
+    `
+  },
   'QmSample1': `
     <html>
       <head>
@@ -125,8 +118,10 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
         await new Promise(resolve => setTimeout(resolve, 500));
 
         // Verificar se temos conteúdo simulado para este hash
-        if (mockIpfsContent[ipfsHash]) {
+        if (typeof mockIpfsContent[ipfsHash] === 'string') {
           setContent(mockIpfsContent[ipfsHash]);
+        } else if (mockIpfsContent[ipfsHash]) {
+          setContent(mockIpfsContent[ipfsHash].content);
         } else {
           // Se não tiver conteúdo específico IPFS, mostrar página de erro
           setContent(`
