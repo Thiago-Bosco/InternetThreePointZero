@@ -53,20 +53,20 @@ export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Top Bar */}
-      <header className="bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/30 flex flex-col">
+      <header className="bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/30 flex flex-col border-b border-border/30">
         {/* Endereço e controles */}
-        <div className="flex items-center gap-2 px-4 h-12 border-b border-border/50">
-          <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded-full hover:bg-accent text-muted-foreground">
+        <div className="flex items-center gap-3 px-4 h-14 border-b border-border/10">
+          <div className="flex items-center gap-1.5">
+            <button className="p-2 rounded-lg hover:bg-accent/80 text-muted-foreground transition-colors">
               <ArrowLeft size={18} />
             </button>
-            <button className="p-1.5 rounded-full hover:bg-accent text-muted-foreground">
+            <button className="p-2 rounded-lg hover:bg-accent/80 text-muted-foreground transition-colors">
               <ArrowRight size={18} />
             </button>
-            <button className="p-1.5 rounded-full hover:bg-accent text-muted-foreground">
+            <button className="p-2 rounded-lg hover:bg-accent/80 text-muted-foreground transition-colors">
               <RefreshCcw size={18} />
             </button>
-            <button className="p-1.5 rounded-full hover:bg-accent text-muted-foreground">
+            <button className="p-2 rounded-lg hover:bg-accent/80 text-muted-foreground transition-colors">
               <Home size={18} />
             </button>
           </div>
@@ -133,10 +133,13 @@ export default function MainLayout({ children }: MainLayoutProps) {
       <main className="flex-1 bg-background">{children}</main>
 
       {/* Rodapé / barra de status */}
-      <footer className="h-6 bg-card/50 border-t border-border/30 flex items-center px-4">
-        <div className="text-xs text-muted-foreground flex items-center gap-4">
-          <span>Seguro</span>
-          <span>https://website.com</span>
+      <footer className="h-8 bg-card/50 border-t border-border/20 flex items-center px-4">
+        <div className="text-xs text-muted-foreground/70 flex items-center gap-4">
+          <span className="flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
+            Seguro
+          </span>
+          <span className="opacity-60">https://website.com</span>
         </div>
       </footer>
     </div>
