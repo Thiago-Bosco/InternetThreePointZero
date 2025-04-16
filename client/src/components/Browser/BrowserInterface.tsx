@@ -59,6 +59,7 @@ export default function BrowserInterface() {
   const [error, setError] = useState<string | null>(null);
   const [ipfsConnected, setIpfsConnected] = useState(false);
   const [ipfsError, setIpfsError] = useState<string | null>(null);
+  const isDev = import.meta.env.DEV;
   const { isAuthenticated, currentUser } = useUser();
   const { toast } = useToast();
 
