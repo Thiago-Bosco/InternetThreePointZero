@@ -43,15 +43,16 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
             : ipfsHash.split('/').pop();
             
           setContent(`
-            <div class="aspect-video w-full max-w-5xl mx-auto">
-              <iframe 
-                width="100%" 
-                height="100%" 
-                src="https://www.youtube.com/embed/${videoId}?autoplay=0"
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen>
-              </iframe>
+            <div class="flex justify-center items-center p-4">
+              <div class="w-full max-w-3xl aspect-video">
+                <iframe 
+                  class="w-full h-full rounded-lg shadow-lg"
+                  src="https://www.youtube.com/embed/${videoId}?autoplay=0"
+                  frameborder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen>
+                </iframe>
+              </div>
             </div>
           `);
         } else {
