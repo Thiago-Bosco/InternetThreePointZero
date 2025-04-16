@@ -1,5 +1,6 @@
+
 import { ReactNode } from 'react';
-import { useLocation, Link } from 'wouter';
+import { useLocation } from 'wouter';
 import { Home, Folder, MessageSquare, Rss, Shield, Settings, Download } from 'lucide-react';
 
 interface MainLayoutProps {
@@ -49,7 +50,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 const isActive = location === item.href;
                 
                 return (
-                  <div key={item.href} onClick={() => window.location.href = item.href}
+                  <div 
+                    key={item.href}
                     className={`
                       flex items-center px-2 py-2 rounded-md text-sm cursor-pointer
                       ${isActive 
@@ -57,6 +59,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                         : 'text-muted-foreground hover:bg-muted hover:text-foreground transition-colors'
                       }
                     `}
+                    onClick={() => window.location.href = item.href}
                   >
                     <Icon size={20} className="mr-3 flex-shrink-0" />
                     <span className="hidden md:inline">{item.label}</span>
@@ -68,20 +71,20 @@ export default function MainLayout({ children }: MainLayoutProps) {
             <div className="mt-auto px-2">
               <div className="border-t border-border pt-4 mt-4 space-y-1">
                 <div 
-                  onClick={() => window.location.href = '/download'}
                   className="flex items-center px-2 py-2 rounded-md text-sm bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/40 dark:text-blue-300 dark:hover:bg-blue-800/60 transition-colors cursor-pointer"
+                  onClick={() => window.location.href = '/download'}
                 >
                   <Download size={20} className="mr-3 flex-shrink-0" />
                   <span className="hidden md:inline">Baixar Navegador</span>
                 </div>
                 
-                <a 
-                  href="#" 
-                  className="flex items-center px-2 py-2 rounded-md text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                <div 
+                  className="flex items-center px-2 py-2 rounded-md text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+                  onClick={() => window.location.href = '/settings'}
                 >
                   <Settings size={20} className="mr-3 flex-shrink-0" />
                   <span className="hidden md:inline">Configurações</span>
-                </a>
+                </div>
               </div>
             </div>
           </div>
