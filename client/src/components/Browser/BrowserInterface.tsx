@@ -129,7 +129,6 @@ export default function BrowserInterface() {
           isAuthenticated={isAuthenticated}
         />
       </div>
-      <div className="flex-1 overflow-auto bg-card"></div>
     </div>
   );
 }
