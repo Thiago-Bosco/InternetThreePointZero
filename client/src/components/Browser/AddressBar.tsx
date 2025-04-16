@@ -108,9 +108,18 @@ export default function AddressBar({ url, isLoading, onNavigate }: AddressBarPro
           onChange={(e) => setInputUrl(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Digite um hash IPFS, ipfs://... ou https://..., ou ?palavra-chave"
-          className="pl-9 pr-12 h-10 bg-muted/50 border-muted hover:bg-background focus:bg-background transition-colors"
+          className="pl-9 pr-12 h-10 bg-muted/50 border-muted hover:bg-background focus:bg-background transition-colors focus-within:ring-2 focus-within:ring-primary/20"
           disabled={isLoading}
+          autoComplete="off"
+          spellCheck="false"
+          type="url"
+          list="search-suggestions"
         />
+        <datalist id="search-suggestions">
+          {searchTypes.map(type => (
+            <option key={type} value={`?type:${type}`} />
+          ))}
+        </datalist>
       </div>
 
       <Button 

@@ -2,11 +2,26 @@
 import { Request, Response } from 'express';
 import fetch from 'node-fetch';
 
+// Cache simples em memória
+const cache = new Map<string, {content: any, timestamp: number}>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+
 export async function proxyHandler(req: Request, res: Response) {
   const targetUrl = req.query.url as string;
+  const noCache = req.query.nocache === 'true';
 
   if (!targetUrl) {
     return res.status(400).json({ error: 'URL não fornecida' });
+  }
+
+  // Verificar cache
+  if (!noCache && cache.has(targetUrl)) {
+    const cached = cache.get(targetUrl);
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      console.log('Cache hit:', targetUrl);
+      return res.status(200).send(cached.content);
+    }
+    cache.delete(targetUrl);
   }
 
   try {

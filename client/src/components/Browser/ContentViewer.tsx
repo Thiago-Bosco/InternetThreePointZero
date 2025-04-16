@@ -226,8 +226,18 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
   // Renderizar conteúdo IPFS simulado em um iframe
   return (
     <div className="h-full overflow-auto bg-white dark:bg-zinc-900">
-      <div className="max-w-full p-2 mx-auto">
-        <div dangerouslySetInnerHTML={{ __html: content }} className="prose prose-sm md:prose-base dark:prose-invert max-w-none" />
+      <div className="max-w-full mx-auto relative">
+        {isLoading ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm">
+            <div className="loading-spinner animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"/>
+          </div>
+        ) : (
+          <div 
+            dangerouslySetInnerHTML={{ __html: content }} 
+            className="prose dark:prose-invert max-w-none p-4"
+          />
+        )}
+      </div>ose prose-sm md:prose-base dark:prose-invert max-w-none" />
       </div>
     </div>
   );

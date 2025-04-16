@@ -200,6 +200,15 @@ export default function BrowserInterface() {
     
     setIsLoading(true);
     
+    // Otimizar URL antes de navegar
+    const optimizedUrl = url.trim()
+      .replace(/^(?!https?:\/\/)(?!ipfs:\/\/)/, 'https://')
+      .replace(/([^:])\/\/+/g, '$1/');
+      
+    // Adicionar timestamp para evitar cache quando necessário
+    const shouldBypassCache = url.includes('nocache=true');
+    const finalUrl = shouldBypassCache ? `${optimizedUrl}&_t=${Date.now()}` : optimizedUrl;
+    
     try {
       // Verificar se é um URL HTTP/HTTPS ou um hash IPFS
       const isHttpUrl = url.startsWith('http://') || url.startsWith('https://');
