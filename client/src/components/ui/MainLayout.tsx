@@ -28,28 +28,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
   ]);
   const [activeTabId, setActiveTabId] = useState(1);
   const [searchValue, setSearchValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [history, setHistory] = useState<{url: string, title: string, timestamp: Date}[]>([]);
   const [bookmarks, setBookmarks] = useState([
     { title: "GitHub", url: "/github" },
     { title: "ChatGPT", url: "/chatgpt" },
   ]);
-
-  useEffect(() => {
-    const savedHistory = localStorage.getItem('browserHistory');
-    if (savedHistory) {
-      setHistory(JSON.parse(savedHistory));
-    }
-  }, []);
-
-  const addToHistory = (url: string, title: string) => {
-    const newEntry = { url, title, timestamp: new Date() };
-    setHistory(prev => {
-      const updated = [newEntry, ...prev].slice(0, 100);
-      localStorage.setItem('browserHistory', JSON.stringify(updated));
-      return updated;
-    });
-  };
 
   const handleTabClose = (id: number) => {
     if (tabs.length > 1) {
@@ -66,12 +48,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
     setActiveTabId(newId);
   };
 
-  const handleNavigate = async (url: string) => {
+  const handleNavigate = (url: string) => {
     setSearchValue(url);
-    setIsLoading(true);
     const currentTab = tabs.find(tab => tab.id === activeTabId);
-    
-    try {
     
     if (url.startsWith('search:')) {
       const searchTerm = url.replace('search:', '');
@@ -81,13 +60,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
     } else {
       const fullUrl = url.startsWith('http') ? url : `https://${url}`;
       window.location.href = `/api/proxy?url=${encodeURIComponent(fullUrl)}`;
-      addToHistory(url, currentTab?.title || url);
     }
     
     if (currentTab) {
-    } finally {
-      setIsLoading(false);
-    }
       setTabs(tabs.map(tab => 
         tab.id === activeTabId 
           ? { ...tab, title: url, url: url }
