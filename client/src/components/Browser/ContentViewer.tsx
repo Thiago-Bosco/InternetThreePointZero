@@ -225,13 +225,10 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
 
   // Renderizar conteúdo IPFS simulado em um iframe
   return (
-    <div className="h-full">
-      <iframe 
-        srcDoc={content}
-        title={`IPFS Content: ${ipfsHash}`}
-        className="w-full h-full border-none"
-        sandbox="allow-scripts allow-same-origin"
-      />
+    <div className="h-full overflow-auto">
+      <div className="max-w-full p-4 mx-auto">
+        <div dangerouslySetInnerHTML={{ __html: content }} className="prose prose-sm md:prose-base dark:prose-invert max-w-none" />
+      </div>
     </div>
   );
 }

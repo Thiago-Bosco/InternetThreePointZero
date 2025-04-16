@@ -19,17 +19,17 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <header className="bg-card shadow border-b border-border">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent">
+      <header className="bg-card shadow-sm border-b border-border h-12 flex-shrink-0">
+        <div className="h-full px-3 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent">
               Internet 3.0
             </h1>
-            <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs font-medium rounded-full dark:bg-blue-900 dark:text-blue-300">
-              Beta
+            <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-xs font-medium rounded-full dark:bg-blue-900 dark:text-blue-300">
+              Beta 
             </span>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-4">
             <button className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Sobre
             </button>
@@ -40,8 +40,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
         </div>
       </header>
 
-      <div className="flex-1 flex">
-        <nav className="w-16 md:w-56 border-r border-border bg-card/50 flex-shrink-0">
+      <div className="flex-1 flex overflow-hidden">
+        <nav className="w-14 md:w-48 border-r border-border bg-card/50 flex-shrink-0">
           <div className="py-4 flex flex-col h-full">
             <div className="space-y-1 px-2">
               {navItems.map((item) => {

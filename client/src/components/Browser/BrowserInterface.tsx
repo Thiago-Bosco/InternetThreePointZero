@@ -373,8 +373,8 @@ export default function BrowserInterface() {
   const activeTab = activeTabId ? tabs.find(tab => tab.id === activeTabId) : null;
   
   return (
-    <div className="flex flex-col h-full border border-border rounded-md overflow-hidden">
-      <div className="flex items-center border-b border-border">
+    <div className="flex flex-col h-full border border-border rounded-lg overflow-hidden bg-card">
+      <div className="flex items-center h-10 border-b border-border bg-muted/30">
         <TabManager 
           tabs={tabs}
           activeTabId={activeTabId}
@@ -384,7 +384,7 @@ export default function BrowserInterface() {
         />
       </div>
       
-      <div className="flex items-center p-2 gap-2 border-b border-border">
+      <div className="flex items-center h-12 px-2 gap-2 border-b border-border bg-background">
         <AddressBar 
           url={activeTab?.url || ''}
           isLoading={isLoading}
