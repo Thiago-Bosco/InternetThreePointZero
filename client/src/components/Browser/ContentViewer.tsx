@@ -18,11 +18,14 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
       return;
     }
 
+    // Verificar se é uma URL HTTP/HTTPS
     const isHttpUrl = ipfsHash.startsWith('http://') || ipfsHash.startsWith('https://');
+    const isYoutubeUrl = ipfsHash.includes('youtube.com') || ipfsHash.includes('youtu.be');
 
-    if (isHttpUrl) {
+    if (isHttpUrl && !isYoutubeUrl) {
       setIsDirectHttpUrl(true);
       setHttpUrl(ipfsHash);
+      setContent('');
       return;
     } else {
       setIsDirectHttpUrl(false);

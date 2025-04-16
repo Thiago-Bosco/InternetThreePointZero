@@ -198,7 +198,9 @@ export default function BrowserInterface() {
   const navigateToUrl = async (url: string) => {
     if (!activeTabId) return;
 
-    setIsLoading(true);
+    try {
+      setIsLoading(true);
+      setError(null);
 
     // Otimizar URL antes de navegar
     const optimizedUrl = url.trim()
