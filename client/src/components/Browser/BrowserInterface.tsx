@@ -231,10 +231,6 @@ export default function BrowserInterface() {
     } finally {
       setIsLoading(false);
     }
-
-      if (isHttpUrl) {
-        // Para URLs da web normal, usamos o proxy
-        const domain = new URL(url).hostname;
         const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
 
         updateTab(activeTabId, { 
