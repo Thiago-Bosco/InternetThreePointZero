@@ -70,60 +70,6 @@ export default function MainLayout({ children }: MainLayoutProps) {
               <Home size={18} />
             </button>
           </div>
-
-          <div className="flex-1 relative">
-            <div className="relative max-w-4xl mx-auto">
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1.5">
-                <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
-                  <span className="text-[10px] text-primary">
-                    {tabs
-                      .find((tab) => tab.id === activeTabId)
-                      ?.title.charAt(0)}
-                  </span>
-                </div>
-                <span className="text-xs text-muted-foreground">https://</span>
-              </div>
-              <input
-                type="text"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && searchValue.trim()) {
-                    if (!searchValue.startsWith('http://') && 
-                        !searchValue.startsWith('https://') && 
-                        !searchValue.startsWith('ipfs://')) {
-                      handleNavigate(`search:${searchValue}`);
-                    } else {
-                      handleNavigate(searchValue);
-                    }
-                  }
-                }}
-                className="w-full h-9 pl-20 pr-10 rounded-full bg-accent/50 border border-border/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 focus:outline-none"
-                placeholder="Pesquisar ou inserir endereço"
-              />
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
-                <button className="p-1 rounded-full hover:bg-accent/80">
-                  <Star size={16} className="text-muted-foreground" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded-full hover:bg-accent relative">
-              <Bell size={18} className="text-muted-foreground" />
-              <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-primary rounded-full"></span>
-            </button>
-            <button className="p-1.5 rounded-full hover:bg-accent">
-              <Settings size={18} className="text-muted-foreground" />
-            </button>
-            <button className="p-1.5 rounded-full hover:bg-accent">
-              <Menu size={18} className="text-muted-foreground" />
-            </button>
-            <div className="ml-1 w-8 h-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
-              <User size={16} className="text-primary" />
-            </div>
-          </div>
         </div>
 
         {/* Barra de favoritos */}
