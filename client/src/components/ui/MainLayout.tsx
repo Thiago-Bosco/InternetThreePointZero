@@ -52,8 +52,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
         </div>
       </header>
 
-      <div className="flex-1 flex pt-14">
-        <nav className="w-16 bg-card/50 backdrop-blur fixed h-full flex flex-col items-center py-4 gap-2">
+      <div className="flex-1 flex">
+        <nav className="w-16 bg-card/50 backdrop-blur fixed h-[calc(100vh-3.5rem)] top-14 flex flex-col items-center py-4 gap-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location === item.href;
@@ -85,7 +85,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
           </div>
         </nav>
 
-        <main className="flex-1 ml-16 p-6 bg-background/50">
+        <main className="flex-1 ml-16 p-6 bg-background/50 mt-14">
           {children}
         </main>
       </div>
