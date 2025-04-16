@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import TabManager from "./TabManager";
 import AddressBar from "./AddressBar";
-import ContentViewer from "./ContentViewer";
+import ContentViewer from "./ContentViewer"; // assuming you may want to use this later
 import BookmarkManager from "./BookmarkManager";
 import { useUser } from "@/context/UserContext";
 import { getTabs, saveTabs, addToHistory, TabData } from "@/lib/storage";
@@ -21,38 +21,44 @@ export default function BrowserInterface() {
   const [tabs, setTabs] = useState<TabData[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [history, setHistory] = useState<{url: string; title: string; timestamp: number}[]>([]);
   const { isAuthenticated, currentUser } = useUser();
   const { toast } = useToast();
 
   useEffect(() => {
-    const load = async () => {
-      const saved = await getTabs();
-      if (saved.length > 0) {
-        setTabs(saved);
-        setActiveTabId(saved[0].id);
+    const loadTabs = async () => {
+      const savedTabs = await getTabs();
+      if (savedTabs.length > 0) {
+        setTabs(savedTabs);
+        setActiveTabId(savedTabs[0].id);
       } else {
         const defaultTab = createDefaultTab();
         setTabs([defaultTab]);
         setActiveTabId(defaultTab.id);
       }
     };
-    load();
+    loadTabs();
   }, []);
 
   useEffect(() => {
-    if (tabs.length) saveTabs(tabs).catch(console.error);
-  }, [tabs]);
+    if (tabs.length > 0)
+      saveTabs(tabs).catch((error) => {
+        console.error("Error saving tabs:", error);
+        toast({ title: "Erro ao salvar abas", variant: "destructive" });
+      });
+  }, [tabs, toast]);
 
-  const createDefaultTab = (): TabData => ({
-    id: nanoid(),
-    title: "Internet 3.0",
-    url: "ipfs://QmdefaultHome",
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  });
+  const createDefaultTab = useCallback(
+    (): TabData => ({
+      id: nanoid(),
+      title: "Internet 3.0",
+      url: "ipfs://QmdefaultHome",
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    }),
+    [],
+  );
 
-  const createNewTab = () => {
+  const createNewTab = useCallback(() => {
     const newTab = {
       id: nanoid(),
       title: "Nova Aba",
@@ -60,53 +66,64 @@ export default function BrowserInterface() {
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
-    setTabs([...tabs, newTab]);
+    setTabs((prevTabs) => [...prevTabs, newTab]);
     setActiveTabId(newTab.id);
-  };
+  }, []);
 
-  const closeTab = (id: string) => {
-    if (tabs.length <= 1) return;
-    const filtered = tabs.filter((t) => t.id !== id);
-    setTabs(filtered);
-    if (activeTabId === id) setActiveTabId(filtered[0].id);
-  };
+  const closeTab = useCallback(
+    (id: string) => {
+      if (tabs.length <= 1) return; // Prevent closing the last tab
+      const filteredTabs = tabs.filter((tab) => tab.id !== id);
+      setTabs(filteredTabs);
+      if (activeTabId === id) {
+        setActiveTabId(filteredTabs[0].id); // Set the first tab as active
+      }
+    },
+    [tabs, activeTabId],
+  );
 
-  const updateTab = (id: string, data: Partial<TabData>) => {
-    setTabs(
-      tabs.map((t) =>
-        t.id === id ? { ...t, ...data, updatedAt: Date.now() } : t,
+  const updateTab = useCallback((id: string, data: Partial<TabData>) => {
+    setTabs((prevTabs) =>
+      prevTabs.map((tab) =>
+        tab.id === id ? { ...tab, ...data, updatedAt: Date.now() } : tab,
       ),
     );
-  };
+  }, []);
 
-  const navigateToUrl = async (url: string) => {
-    if (!activeTabId) return;
-    try {
-      setIsLoading(true);
-      const cleaned = url.trim();
-      const isIPFS =
-        cleaned.startsWith("ipfs://") || cleaned.startsWith("/ipfs/");
-      const hash =
-        cleaned.replace("ipfs://", "").replace("/ipfs/", "") || "QmdefaultHome";
+  const navigateToUrl = useCallback(
+    async (url: string) => {
+      if (!activeTabId) return;
 
-      updateTab(activeTabId, {
-        url: `ipfs://${hash}`,
-        title: `IPFS: ${hash.slice(0, 8)}...`,
-      });
+      try {
+        setIsLoading(true);
+        const cleanedUrl = url.trim();
+        const isIPFS =
+          cleanedUrl.startsWith("ipfs://") || cleanedUrl.startsWith("/ipfs/");
+        const hash =
+          cleanedUrl.replace("ipfs://", "").replace("/ipfs/", "") ||
+          "QmdefaultHome";
 
-      await addToHistory({
-        url: `ipfs://${hash}`,
-        title: hash,
-        timestamp: Date.now(),
-      });
-    } catch {
-      toast({ title: "Erro ao navegar", variant: "destructive" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        updateTab(activeTabId, {
+          url: `ipfs://${hash}`,
+          title: `IPFS: ${hash.slice(0, 8)}...`,
+        });
 
-  const activeTab = tabs.find((t) => t.id === activeTabId);
+        await addToHistory({
+          url: `ipfs://${hash}`,
+          title: hash,
+          timestamp: Date.now(),
+        });
+      } catch (error) {
+        console.error("Navigation error:", error);
+        toast({ title: "Erro ao navegar", variant: "destructive" });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [activeTabId, updateTab, toast],
+  );
+
+  const activeTab = tabs.find((tab) => tab.id === activeTabId);
 
   return (
     <div className="flex flex-col h-full">
@@ -129,6 +146,8 @@ export default function BrowserInterface() {
           isAuthenticated={isAuthenticated}
         />
       </div>
+      <ContentViewer content={mockIpfsContent.QmdefaultHome} />{" "}
+      {/* Assuming ContentViewer will display the content */}
     </div>
   );
 }
