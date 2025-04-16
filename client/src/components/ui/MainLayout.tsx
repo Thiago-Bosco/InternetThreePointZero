@@ -53,29 +53,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
               <Menu size={20} className="text-foreground" />
             </button>
 
-            {/* Search Bar */}
-            <div className="relative flex-1 max-w-2xl hidden md:block">
-              <div className="relative">
-                <Search
-                  size={18}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-                />
-                <input
-                  type="text"
-                  placeholder="Pesquisar ou digitar URL..."
-                  className="w-full pl-10 pr-4 py-2 rounded-full bg-accent/50 focus:bg-accent/80 border-none focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
-                />
-              </div>
             </div>
-
-            {/* Mobile Search Button */}
-            <button
-              className="p-2 hover:bg-accent rounded-full md:hidden"
-              onClick={toggleSearch}
-            >
-              <Search size={20} className="text-foreground" />
-            </button>
-          </div>
 
           <div className="flex items-center gap-2">
             <button className="p-2 hover:bg-accent rounded-full relative transition-colors">
@@ -97,31 +75,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         </div>
       </header>
 
-      {/* Mobile Search Overlay */}
-      {isSearchOpen && (
-        <div className="fixed inset-0 bg-background/95 z-50 p-4 md:hidden">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={toggleSearch}
-              className="p-2 hover:bg-accent rounded-full"
-            >
-              <X size={20} />
-            </button>
-            <div className="relative flex-1">
-              <Search
-                size={18}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-              />
-              <input
-                type="text"
-                placeholder="Pesquisar ou digitar URL..."
-                className="w-full pl-10 pr-4 py-2 rounded-full bg-accent/50 border-none focus:outline-none focus:ring-2 focus:ring-primary/30"
-                autoFocus
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      
 
       <div className="flex-1 flex">
         {/* Sidebar */}
