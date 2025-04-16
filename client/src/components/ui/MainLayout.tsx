@@ -126,25 +126,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
           </div>
         </div>
 
-        {/* Barra de favoritos */}
-        <div className="flex items-center h-8 px-4 text-xs text-muted-foreground bg-card/30 border-b border-border/30">
-          <div className="flex items-center gap-4">
-            {bookmarks.map((bookmark, index) => (
-              <a
-                key={index}
-                href={bookmark.url}
-                className="flex items-center gap-1.5 hover:text-foreground transition-colors"
-              >
-                <div className="w-3.5 h-3.5 rounded-sm bg-primary/15 flex items-center justify-center">
-                  <span className="text-[8px] text-primary/80">
-                    {bookmark.title.charAt(0)}
-                  </span>
-                </div>
-                <span>{bookmark.title}</span>
-              </a>
-            ))}
-          </div>
-        </div>
+        
       </header>
 
       {/* Conteúdo da página */}
