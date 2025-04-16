@@ -230,8 +230,6 @@ export default function BrowserInterface() {
     } finally {
       setIsLoading(false);
     }
-      .replace(/^(?!https?:\/\/)(?!ipfs:\/\/)/, 'https://')
-      .replace(/([^:])\/\/+/g, '$1/');
 
     // Adicionar timestamp para evitar cache quando necessário
     const shouldBypassCache = url.includes('nocache=true');
