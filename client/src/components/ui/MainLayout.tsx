@@ -78,16 +78,32 @@ export default function MainLayout({ children }: MainLayoutProps) {
         {/* Endereço e controles */}
         <div className="flex items-center gap-4 px-5 h-16 border-b border-border/10">
           <div className="flex items-center gap-2">
-            <button className="p-2.5 rounded-xl hover:bg-accent/90 text-muted-foreground/70 hover:text-foreground transition-all duration-200 active:scale-95">
+            <button 
+              onClick={() => window.history.back()}
+              className="p-2.5 rounded-xl hover:bg-accent hover:shadow-sm text-muted-foreground/70 hover:text-foreground transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              title="Voltar"
+            >
               <ArrowLeft size={18} />
             </button>
-            <button className="p-2.5 rounded-xl hover:bg-accent/90 text-muted-foreground/70 hover:text-foreground transition-all duration-200 active:scale-95">
+            <button 
+              onClick={() => window.history.forward()}
+              className="p-2.5 rounded-xl hover:bg-accent hover:shadow-sm text-muted-foreground/70 hover:text-foreground transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              title="Avançar"
+            >
               <ArrowRight size={18} />
             </button>
-            <button className="p-2.5 rounded-xl hover:bg-accent/90 text-muted-foreground/70 hover:text-foreground transition-all duration-200 active:scale-95">
+            <button 
+              onClick={() => window.location.reload()}
+              className="p-2.5 rounded-xl hover:bg-accent hover:shadow-sm text-muted-foreground/70 hover:text-foreground transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              title="Recarregar"
+            >
               <RefreshCcw size={18} />
             </button>
-            <button className="p-2.5 rounded-xl hover:bg-accent/90 text-muted-foreground/70 hover:text-foreground transition-all duration-200 active:scale-95">
+            <button 
+              onClick={() => handleNavigate("/")}
+              className="p-2.5 rounded-xl hover:bg-accent hover:shadow-sm text-muted-foreground/70 hover:text-foreground transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              title="Página inicial"
+            >
               <Home size={18} />
             </button>
           </div>
@@ -132,14 +148,23 @@ export default function MainLayout({ children }: MainLayoutProps) {
           </div>
 
           <div className="flex items-center gap-2 ml-2">
-            <button className="p-2.5 rounded-xl hover:bg-accent/90 relative group transition-all duration-200">
+            <button 
+              className="p-2.5 rounded-xl hover:bg-accent hover:shadow-sm relative group transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              title="Notificações"
+            >
               <Bell size={18} className="text-muted-foreground/70 group-hover:text-foreground" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full ring-4 ring-background"></span>
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full ring-4 ring-background animate-pulse"></span>
             </button>
-            <button className="p-2.5 rounded-xl hover:bg-accent/90 group transition-all duration-200">
+            <button 
+              className="p-2.5 rounded-xl hover:bg-accent hover:shadow-sm group transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              title="Configurações"
+            >
               <Settings size={18} className="text-muted-foreground/70 group-hover:text-foreground" />
             </button>
-            <button className="p-2.5 rounded-xl hover:bg-accent/90 group transition-all duration-200">
+            <button 
+              className="p-2.5 rounded-xl hover:bg-accent hover:shadow-sm group transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              title="Menu"
+            >
               <Menu size={18} className="text-muted-foreground/70 group-hover:text-foreground" />
             </button>
             <div className="ml-2 w-10 h-10 rounded-xl overflow-hidden bg-primary/10 hover:bg-primary/15 flex items-center justify-center transition-all duration-200 cursor-pointer">
