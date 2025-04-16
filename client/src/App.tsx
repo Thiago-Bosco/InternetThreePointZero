@@ -135,7 +135,6 @@ function App() {
             <Route path="/feed" component={FeedComponent} />
             <Route path="/identity" component={IdentityManager} />
             <Route path="/download" component={DownloadPage} />
-            <Route path="/tests" component={TestRunner} />
             <Route component={NotFound} />
           </Switch>
         </MainLayout>
