@@ -216,22 +216,8 @@ export default function BrowserInterface() {
       const isHttpUrl = url.startsWith('http://') || url.startsWith('https://');
 
       if (isHttpUrl) {
-        await handleHttpUrl(finalUrl);
-      } else {
-        await handleIpfsUrl(finalUrl);
-      }
-    } catch (error) {
-      console.error('Erro ao navegar:', error);
-      setError('Erro ao carregar página');
-      toast({
-        title: "Erro de navegação",
-        description: "Não foi possível carregar o conteúdo",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-        const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
+        const proxyUrl = `/api/proxy?url=${encodeURIComponent(finalUrl)}`;
+        const domain = new URL(finalUrl).hostname;
 
         updateTab(activeTabId, { 
           url: url,
