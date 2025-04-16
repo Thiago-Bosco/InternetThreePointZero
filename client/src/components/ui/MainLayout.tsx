@@ -49,34 +49,31 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 const isActive = location === item.href;
                 
                 return (
-                  <Link key={item.href} href={item.href}>
-                    <a
-                      className={`
-                        flex items-center px-2 py-2 rounded-md text-sm
-                        ${isActive 
-                          ? 'bg-primary/10 text-primary font-medium' 
-                          : 'text-muted-foreground hover:bg-muted hover:text-foreground transition-colors'
-                        }
-                      `}
-                    >
-                      <Icon size={20} className="mr-3 flex-shrink-0" />
-                      <span className="hidden md:inline">{item.label}</span>
-                    </a>
-                  </Link>
+                  <div key={item.href} onClick={() => window.location.href = item.href}
+                    className={`
+                      flex items-center px-2 py-2 rounded-md text-sm cursor-pointer
+                      ${isActive 
+                        ? 'bg-primary/10 text-primary font-medium' 
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground transition-colors'
+                      }
+                    `}
+                  >
+                    <Icon size={20} className="mr-3 flex-shrink-0" />
+                    <span className="hidden md:inline">{item.label}</span>
+                  </div>
                 );
               })}
             </div>
             
             <div className="mt-auto px-2">
               <div className="border-t border-border pt-4 mt-4 space-y-1">
-                <Link href="/download">
-                  <a 
-                    className="flex items-center px-2 py-2 rounded-md text-sm bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/40 dark:text-blue-300 dark:hover:bg-blue-800/60 transition-colors"
-                  >
-                    <Download size={20} className="mr-3 flex-shrink-0" />
-                    <span className="hidden md:inline">Baixar Navegador</span>
-                  </a>
-                </Link>
+                <div 
+                  onClick={() => window.location.href = '/download'}
+                  className="flex items-center px-2 py-2 rounded-md text-sm bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/40 dark:text-blue-300 dark:hover:bg-blue-800/60 transition-colors cursor-pointer"
+                >
+                  <Download size={20} className="mr-3 flex-shrink-0" />
+                  <span className="hidden md:inline">Baixar Navegador</span>
+                </div>
                 
                 <a 
                   href="#" 
