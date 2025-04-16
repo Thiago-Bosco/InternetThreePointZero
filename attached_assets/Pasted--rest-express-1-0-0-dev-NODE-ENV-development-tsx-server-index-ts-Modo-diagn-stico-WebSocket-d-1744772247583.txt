@@ -1,0 +1,88 @@
+ rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+Modo diagnóstico: WebSocket desativado temporariamente
+2:54:47 AM [express] serving on port 5000
+Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+2:55:10 AM [express] HEAD /api/proxy 200 in 204ms
+2:55:11 AM [express] GET /api/proxy 200 in 170ms
+2:55:15 AM [express] GET /api/proxy 200 in 321ms
+2:55:26 AM [express] HEAD /api/proxy 200 in 105ms
+2:55:27 AM [express] GET /api/proxy 200 in 188ms
+2:55:28 AM [express] GET /api/proxy 200 in 110ms
+2:55:37 AM [express] HEAD /api/proxy 200 in 110ms
+2:55:37 AM [express] GET /api/proxy 200 in 141ms
+2:55:39 AM [express] GET /api/proxy 200 in 123ms
+2:55:53 AM [express] GET /api/proxy 200 in 130ms
+2:55:55 AM [express] GET /api/proxy 200 in 123ms
+2:56:59 AM [vite] hmr update /src/components/Browser/ContentViewer.tsx, /src/index.css?v=6_CM2AWYfMuIj2XXjoinB
+2:57:00 AM [vite] hmr update /src/components/Browser/BrowserInterface.tsx, /src/index.css?v=6_CM2AWYfMuIj2XXjoinB
+2:57:01 AM [vite] Internal server error: /home/runner/workspace/client/src/components/Browser/BrowserInterface.tsx: Missing catch or finally clause. (201:4)
+
+  199 |     if (!activeTabId) return;
+  200 |
+> 201 |     try {
+      |     ^
+  202 |       setIsLoading(true);
+  203 |       setError(null);
+  204 |
+  Plugin: vite:react-babel
+  File: /home/runner/workspace/client/src/components/Browser/BrowserInterface.tsx:201:4
+  199|      if (!activeTabId) return;
+  200|  
+  201|      try {
+     |      ^
+  202|        setIsLoading(true);
+  203|        setError(null);
+      at toParseError (/home/runner/workspace/node_modules/@babel/parser/src/parse-error.ts:95:45)
+      at raise (/home/runner/workspace/node_modules/@babel/parser/src/tokenizer/index.ts:1497:19)
+      at parseTryStatement (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1212:12)
+      at parseStatementContent (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:504:21)
+      at parseStatementContent (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3056:20)
+      at parseStatementLike (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:437:17)
+      at parseStatementListItem (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:386:17)
+      at parseBlockOrModuleBlockBody (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1420:16)
+      at parseBlockBody (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1393:10)
+      at parseBlock (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1361:10)
+      at parseFunctionBody (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:2557:24)
+      at parseArrowExpression (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:2498:10)
+      at parseAsyncArrowFromCallExpression (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:1030:10)
+      at parseAsyncArrowFromCallExpression (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3567:20)
+      at parseCoverCallAndAsyncArrowHead (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:909:27)
+      at parseSubscript (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:777:19)
+      at parseSubscript (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:2734:20)
+      at parseSubscripts (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:735:19)
+      at parseExprSubscripts (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:720:17)
+      at parseUpdate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:693:21)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:655:23)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3735:20)
+      at parseMaybeUnaryOrPrivate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:389:14)
+      at parseExprOps (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:401:23)
+      at parseMaybeConditional (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:356:23)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:298:21)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3607:22)
+      at callback (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:252:12)
+      at allowInAnd (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:3112:16)
+      at parseMaybeAssignAllowIn (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:251:17)
+      at parseVar (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1563:18)
+      at parseVarStatement (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1227:10)
+      at parseVarStatement (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3007:33)
+      at parseStatementContent (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:566:21)
+      at parseStatementContent (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3056:20)
+      at parseStatementLike (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:437:17)
+      at parseStatementListItem (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:386:17)
+      at parseBlockOrModuleBlockBody (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1420:16)
+      at parseBlockBody (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1393:10)
+      at parseBlock (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1361:10)
+      at parseFunctionBody (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:2557:24)
+      at parseFunctionBodyAndFinish (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:2526:10)
+      at parseFunctionBodyAndFinish (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:2538:20)
+      at callback (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1667:12)
+      at withSmartMixTopicForbiddingContext (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:3091:14)
+      at parseFunction (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1665:10)
+      at parseExportDefaultExpression (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:2536:19)
+      at parseExportDefaultExpression (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:2998:20)
+      at parseExport (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:2420:25)
+      at parseExport (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:2968:22)
