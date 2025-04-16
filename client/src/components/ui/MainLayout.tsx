@@ -27,14 +27,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             <button className="p-2 hover:bg-accent rounded-full">
               <Menu size={20} className="text-foreground" />
             </button>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
-                Internet 3.0
-              </span>
-              <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[10px] font-medium rounded-full dark:bg-blue-900 dark:text-blue-300">
-                Beta
-              </span>
-            </div>
+            
           </div>
           
           <div className="flex items-center gap-2">
