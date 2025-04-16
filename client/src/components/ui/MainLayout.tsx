@@ -47,7 +47,14 @@ export default function MainLayout({ children }: MainLayoutProps) {
   };
 
   const handleNavigate = (url: string) => {
-    setSearchValue(url); // Update searchValue when navigating
+    setSearchValue(url);
+    // Implementa a navegação real
+    if (url.startsWith('search:')) {
+      const searchTerm = url.replace('search:', '');
+      window.location.href = `https://www.google.com/search?q=${encodeURIComponent(searchTerm)}`;
+    } else {
+      window.location.href = url.startsWith('http') ? url : `https://${url}`;
+    }
   };
 
   return (
