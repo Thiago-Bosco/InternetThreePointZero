@@ -232,14 +232,6 @@ export default function BrowserInterface() {
       setIsLoading(false);
     }
 
-    // Adicionar timestamp para evitar cache quando necessário
-    const shouldBypassCache = url.includes('nocache=true');
-    const finalUrl = shouldBypassCache ? `${optimizedUrl}&_t=${Date.now()}` : optimizedUrl;
-
-    try {
-      // Verificar se é um URL HTTP/HTTPS ou um hash IPFS
-      const isHttpUrl = url.startsWith('http://') || url.startsWith('https://');
-
       if (isHttpUrl) {
         // Para URLs da web normal, usamos o proxy
         const domain = new URL(url).hostname;
