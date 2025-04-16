@@ -136,10 +136,27 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
                 </style>
               </head>
               <body>
-                <h1>Conteúdo IPFS não encontrado</h1>
-                <p>Não foi possível encontrar o conteúdo com o hash <strong>${ipfsHash}</strong>.</p>
-                <p>Verifique se o hash está correto ou tente acessar outro conteúdo.</p>
-                <a class="back" href="ipfs://QmdefaultHome">Voltar para a página inicial</a>
+                <div style="text-align: center; padding: 2rem;">
+                  <h2 style="color: #666; margin-bottom: 1rem;">Conteúdo não encontrado</h2>
+                  <p style="margin-bottom: 1rem;">O conteúdo solicitado não está disponível no momento.</p>
+                  <div style="background: #f5f5f5; padding: 1rem; border-radius: 4px; margin: 1rem 0;">
+                    <code style="color: #666;">${ipfsHash}</code>
+                  </div>
+                  <p style="color: #666; margin-bottom: 2rem;">
+                    Sugestões:
+                    <ul style="list-style: none; padding: 0;">
+                      <li>• Verifique se o endereço está correto</li>
+                      <li>• Tente uma nova busca usando palavras-chave</li>
+                      <li>• Explore o conteúdo relacionado abaixo</li>
+                    </ul>
+                  </p>
+                  <a 
+                    href="ipfs://QmdefaultHome" 
+                    style="display: inline-block; padding: 0.5rem 1rem; background: #0066cc; color: white; text-decoration: none; border-radius: 4px;"
+                  >
+                    Voltar para a página inicial
+                  </a>
+                </div>
               </body>
             </html>
           `);
