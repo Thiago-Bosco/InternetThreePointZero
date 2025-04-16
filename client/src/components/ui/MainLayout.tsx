@@ -88,8 +88,14 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleNavigate(searchValue); // Navigate when Enter is pressed
+                  if (e.key === "Enter" && searchValue.trim()) {
+                    if (!searchValue.startsWith('http://') && 
+                        !searchValue.startsWith('https://') && 
+                        !searchValue.startsWith('ipfs://')) {
+                      handleNavigate(`search:${searchValue}`);
+                    } else {
+                      handleNavigate(searchValue);
+                    }
                   }
                 }}
                 className="w-full h-9 pl-20 pr-10 rounded-full bg-accent/50 border border-border/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 focus:outline-none"
