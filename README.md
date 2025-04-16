@@ -1,5 +1,4 @@
 
-# Internet 3.0
 
 Um navegador descentralizado que combina IPFS, WebRTC e criptografia para criar uma experiência de internet mais privada e segura.
 
