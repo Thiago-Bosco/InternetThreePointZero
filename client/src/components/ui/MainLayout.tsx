@@ -53,20 +53,20 @@ export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Top Bar */}
-      <header className="bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/30 flex flex-col border-b border-border/30">
+      <header className="bg-card/40 backdrop-blur-md supports-[backdrop-filter]:bg-card/20 flex flex-col border-b border-border/20 shadow-sm">
         {/* Endereço e controles */}
-        <div className="flex items-center gap-3 px-4 h-14 border-b border-border/10">
-          <div className="flex items-center gap-1.5">
-            <button className="p-2 rounded-lg hover:bg-accent/80 text-muted-foreground transition-colors">
+        <div className="flex items-center gap-4 px-5 h-16 border-b border-border/10">
+          <div className="flex items-center gap-2">
+            <button className="p-2.5 rounded-xl hover:bg-accent/90 text-muted-foreground/70 hover:text-foreground transition-all duration-200 active:scale-95">
               <ArrowLeft size={18} />
             </button>
-            <button className="p-2 rounded-lg hover:bg-accent/80 text-muted-foreground transition-colors">
+            <button className="p-2.5 rounded-xl hover:bg-accent/90 text-muted-foreground/70 hover:text-foreground transition-all duration-200 active:scale-95">
               <ArrowRight size={18} />
             </button>
-            <button className="p-2 rounded-lg hover:bg-accent/80 text-muted-foreground transition-colors">
+            <button className="p-2.5 rounded-xl hover:bg-accent/90 text-muted-foreground/70 hover:text-foreground transition-all duration-200 active:scale-95">
               <RefreshCcw size={18} />
             </button>
-            <button className="p-2 rounded-lg hover:bg-accent/80 text-muted-foreground transition-colors">
+            <button className="p-2.5 rounded-xl hover:bg-accent/90 text-muted-foreground/70 hover:text-foreground transition-all duration-200 active:scale-95">
               <Home size={18} />
             </button>
           </div>
@@ -98,30 +98,30 @@ export default function MainLayout({ children }: MainLayoutProps) {
                     }
                   }
                 }}
-                className="w-full h-9 pl-20 pr-10 rounded-full bg-accent/50 border border-border/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 focus:outline-none"
+                className="w-full h-11 pl-20 pr-12 rounded-2xl bg-accent/40 hover:bg-accent/50 border border-border/20 focus:border-primary/40 focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all duration-200"
                 placeholder="Pesquisar ou inserir endereço"
               />
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
-                <button className="p-1 rounded-full hover:bg-accent/80">
-                  <Star size={16} className="text-muted-foreground" />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+                <button className="p-1.5 rounded-xl hover:bg-background/80 hover:text-foreground transition-all duration-200">
+                  <Star size={16} className="text-muted-foreground/70" />
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded-full hover:bg-accent relative">
-              <Bell size={18} className="text-muted-foreground" />
-              <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-primary rounded-full"></span>
+          <div className="flex items-center gap-2 ml-2">
+            <button className="p-2.5 rounded-xl hover:bg-accent/90 relative group transition-all duration-200">
+              <Bell size={18} className="text-muted-foreground/70 group-hover:text-foreground" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary rounded-full ring-4 ring-background"></span>
             </button>
-            <button className="p-1.5 rounded-full hover:bg-accent">
-              <Settings size={18} className="text-muted-foreground" />
+            <button className="p-2.5 rounded-xl hover:bg-accent/90 group transition-all duration-200">
+              <Settings size={18} className="text-muted-foreground/70 group-hover:text-foreground" />
             </button>
-            <button className="p-1.5 rounded-full hover:bg-accent">
-              <Menu size={18} className="text-muted-foreground" />
+            <button className="p-2.5 rounded-xl hover:bg-accent/90 group transition-all duration-200">
+              <Menu size={18} className="text-muted-foreground/70 group-hover:text-foreground" />
             </button>
-            <div className="ml-1 w-8 h-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
-              <User size={16} className="text-primary" />
+            <div className="ml-2 w-10 h-10 rounded-xl overflow-hidden bg-primary/10 hover:bg-primary/15 flex items-center justify-center transition-all duration-200 cursor-pointer">
+              <User size={18} className="text-primary/70" />
             </div>
           </div>
         </div>
@@ -133,13 +133,13 @@ export default function MainLayout({ children }: MainLayoutProps) {
       <main className="flex-1 bg-background">{children}</main>
 
       {/* Rodapé / barra de status */}
-      <footer className="h-8 bg-card/50 border-t border-border/20 flex items-center px-4">
-        <div className="text-xs text-muted-foreground/70 flex items-center gap-4">
-          <span className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
-            Seguro
+      <footer className="h-10 bg-card/40 backdrop-blur-md supports-[backdrop-filter]:bg-card/20 border-t border-border/10 flex items-center px-5 shadow-sm">
+        <div className="text-xs text-muted-foreground/60 flex items-center gap-4">
+          <span className="flex items-center gap-2 bg-primary/5 px-3 py-1.5 rounded-lg">
+            <div className="w-1.5 h-1.5 rounded-full bg-primary/60 ring-4 ring-primary/20" />
+            <span className="font-medium text-primary/70">Seguro</span>
           </span>
-          <span className="opacity-60">https://website.com</span>
+          <span className="opacity-50 hover:opacity-70 transition-opacity">https://website.com</span>
         </div>
       </footer>
     </div>
