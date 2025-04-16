@@ -41,8 +41,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        <nav className="w-14 md:w-48 border-r border-border bg-card/50 flex-shrink-0">
-          <div className="py-4 flex flex-col h-full">
+        <nav className="w-12 md:w-40 border-r border-border bg-card/50 flex-shrink-0">
+          <div className="py-2 flex flex-col h-full">
             <div className="space-y-1 px-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -90,8 +90,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
           </div>
         </nav>
 
-        <main className="flex-1 p-4 md:p-6 overflow-auto">
-          <div className="mx-auto max-w-6xl h-full">
+        <main className="flex-1 p-2 md:p-3 overflow-auto">
+          <div className="mx-auto h-full">
             {children}
           </div>
         </main>
