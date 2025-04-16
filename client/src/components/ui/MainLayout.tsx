@@ -21,8 +21,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const [location] = useLocation();
   const [tabs, setTabs] = useState([
     { id: 1, title: "Nova guia", url: "/" },
-    { id: 2, title: "Microsoft Bing", url: "/bing" },
-    { id: 3, title: "GitHub", url: "/github" },
+    { id: 2, title: "Chat", url: "/chat" },
+    { id: 3, title: "Feed", url: "/feed" },
+    { id: 4, title: "Arquivos", url: "/files" },
+    { id: 5, title: "Identidade", url: "/identity" }
   ]);
   const [activeTabId, setActiveTabId] = useState(1);
   const [searchValue, setSearchValue] = useState("");
@@ -48,12 +50,24 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   const handleNavigate = (url: string) => {
     setSearchValue(url);
-    // Implementa a navegação real
+    const currentTab = tabs.find(tab => tab.id === activeTabId);
+    
     if (url.startsWith('search:')) {
       const searchTerm = url.replace('search:', '');
-      window.location.href = `https://www.google.com/search?q=${encodeURIComponent(searchTerm)}`;
+      window.location.href = `/api/proxy?url=${encodeURIComponent(`https://www.google.com/search?q=${searchTerm}`)}`;
+    } else if (url.startsWith('/')) {
+      window.location.href = url; // Rotas internas
     } else {
-      window.location.href = url.startsWith('http') ? url : `https://${url}`;
+      const fullUrl = url.startsWith('http') ? url : `https://${url}`;
+      window.location.href = `/api/proxy?url=${encodeURIComponent(fullUrl)}`;
+    }
+    
+    if (currentTab) {
+      setTabs(tabs.map(tab => 
+        tab.id === activeTabId 
+          ? { ...tab, title: url, url: url }
+          : tab
+      ));
     }
   };
 
