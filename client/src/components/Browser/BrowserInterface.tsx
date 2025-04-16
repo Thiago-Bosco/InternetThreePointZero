@@ -110,7 +110,6 @@ export default function BrowserInterface() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header: Tabs + AddressBar */}
       <div className="flex items-center justify-between border-b border-border bg-muted px-3 h-12 gap-2">
         <TabManager
           tabs={tabs}
@@ -130,14 +129,7 @@ export default function BrowserInterface() {
           isAuthenticated={isAuthenticated}
         />
       </div>
-
-      {/* Viewer */}
-      <div className="flex-1 overflow-auto bg-card">
-        <ContentViewer
-          ipfsHash={activeTab?.url?.replace("ipfs://", "") || ""}
-          isLoading={isLoading}
-        />
-      </div>
+      <div className="flex-1 overflow-auto bg-card"></div>
     </div>
   );
 }
