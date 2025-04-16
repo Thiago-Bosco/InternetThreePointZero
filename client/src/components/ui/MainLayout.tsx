@@ -1,4 +1,3 @@
-
 import { ReactNode } from 'react';
 import { useLocation } from 'wouter';
 import { 
@@ -41,20 +40,13 @@ export default function MainLayout({ children }: MainLayoutProps) {
   ];
 
   const TopBar = () => (
-    <div className="h-10 flex items-center gap-2 px-2 bg-background border-b">
-      <div className="flex items-center gap-1">
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <ChevronLeft className="h-4 w-4" />
+    <div className="h-16 flex items-center justify-center px-4 sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-40">
+      <div className="w-full max-w-2xl flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={() => window.history.back()}>
+          <ChevronLeft className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <RefreshCw className="h-4 w-4" />
-        </Button>
-      </div>
-      <div className="flex-1 flex items-center">
-        <div className="flex-1 h-8 bg-muted rounded-full flex items-center px-4 gap-2">
+
+        <div className="flex-1 h-10 bg-muted rounded-full flex items-center px-4 gap-2">
           <Search className="h-4 w-4 text-muted-foreground" />
           <input 
             type="text" 
@@ -62,37 +54,17 @@ export default function MainLayout({ children }: MainLayoutProps) {
             className="bg-transparent border-none focus:outline-none text-sm flex-1"
           />
         </div>
-      </div>
-      <div className="flex items-center gap-1">
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Star className="h-4 w-4" />
+
+        <Button variant="ghost" size="icon">
+          <Settings className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Bell className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Settings className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <User className="h-4 w-4" />
+        <Button variant="ghost" size="icon">
+          <User className="h-5 w-5" />
         </Button>
       </div>
     </div>
   );
 
-  const TabBar = () => (
-    <div className="h-9 flex items-center gap-1 px-2 bg-background/50 border-b">
-      <div className="flex-1 flex items-center gap-1">
-        <div className="h-7 px-3 bg-primary/10 rounded flex items-center gap-2 text-sm">
-          <Home className="h-4 w-4" />
-          <span>Internet 3.0</span>
-        </div>
-        <Button variant="ghost" size="icon" className="h-7 w-7">
-          <Plus className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
-  );
 
   const SideNav = () => (
     <div className="w-12 border-r bg-card/50 backdrop-blur flex flex-col items-center py-2 gap-1">
@@ -125,7 +97,6 @@ export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <TopBar />
-      <TabBar />
       <div className="flex-1 flex">
         {!isMobile && <SideNav />}
         {isMobile && (
@@ -164,8 +135,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </SheetContent>
           </Sheet>
         )}
-        <main className="flex-1">
-          {children}
+        <main className="flex-1 px-4">
+          <div className="max-w-2xl mx-auto py-4">
+            {children}
+          </div>
         </main>
       </div>
     </div>
