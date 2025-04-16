@@ -89,12 +89,13 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 onChange={(e) => setSearchValue(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && searchValue.trim()) {
-                    if (!searchValue.startsWith('http://') && 
-                        !searchValue.startsWith('https://') && 
-                        !searchValue.startsWith('ipfs://')) {
-                      handleNavigate(`search:${searchValue}`);
+                    const trimmedValue = searchValue.trim();
+                    if (trimmedValue.match(/^(https?:\/\/|ipfs:\/\/)/i)) {
+                      handleNavigate(trimmedValue);
+                    } else if (trimmedValue.includes('.')) {
+                      handleNavigate(`https://${trimmedValue}`);
                     } else {
-                      handleNavigate(searchValue);
+                      handleNavigate(`search:${trimmedValue}`);
                     }
                   }
                 }}
