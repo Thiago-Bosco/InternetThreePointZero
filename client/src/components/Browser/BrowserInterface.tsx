@@ -202,8 +202,34 @@ export default function BrowserInterface() {
       setIsLoading(true);
       setError(null);
 
-    // Otimizar URL antes de navegar
-    const optimizedUrl = url.trim()
+      // Otimizar URL antes de navegar
+      const optimizedUrl = url.trim()
+        .replace(/^(?!https?:\/\/)(?!ipfs:\/\/)/, 'https://')
+        .replace(/([^:])\/\/+/g, '$1/');
+
+      // Adicionar timestamp para evitar cache quando necessário
+      const shouldBypassCache = url.includes('nocache=true');
+      const finalUrl = shouldBypassCache ? `${optimizedUrl}&_t=${Date.now()}` : optimizedUrl;
+
+      // Verificar se é um URL HTTP/HTTPS ou um hash IPFS
+      const isHttpUrl = url.startsWith('http://') || url.startsWith('https://');
+
+      if (isHttpUrl) {
+        await handleHttpUrl(finalUrl);
+      } else {
+        await handleIpfsUrl(finalUrl);
+      }
+    } catch (error) {
+      console.error('Erro ao navegar:', error);
+      setError('Erro ao carregar página');
+      toast({
+        title: "Erro de navegação",
+        description: "Não foi possível carregar o conteúdo",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
       .replace(/^(?!https?:\/\/)(?!ipfs:\/\/)/, 'https://')
       .replace(/([^:])\/\/+/g, '$1/');
 
