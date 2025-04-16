@@ -121,11 +121,19 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
   }
 
   return (
-    <div className="h-full overflow-auto bg-background">
-      <div className="max-w-full mx-auto relative">
+    <div className="h-full w-full overflow-auto bg-background">
+      <div className="w-full mx-auto">
         <div 
           dangerouslySetInnerHTML={{ __html: content }} 
-          className="prose dark:prose-invert max-w-none p-4"
+          className="w-full"
+          style={{
+            height: '100vh',
+            width: '100%',
+            border: 'none',
+            margin: 0,
+            padding: 0,
+            overflow: 'hidden'
+          }}
         />
       </div>
     </div>
