@@ -172,8 +172,14 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex flex-col items-center justify-center h-full gap-4">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="text-sm text-muted-foreground animate-pulse">
+          Carregando conteúdo...
+        </div>
+        <div className="w-48 h-2 bg-muted rounded-full overflow-hidden">
+          <div className="h-full bg-primary animate-progress"></div>
+        </div>
       </div>
     );
   }

@@ -17,12 +17,34 @@ export default function AddressBar({ url, isLoading, onNavigate }: AddressBarPro
     setInputUrl(url);
   });
 
-  const mockIpfsContent = { // Example data - Replace with your actual IPFS content indexing
-    'hash1': { keywords: ['keyword1', 'keyword2'], title: 'Title 1', description: 'Description 1'},
-    'hash2': { keywords: ['keyword3', 'keyword4'], title: 'Title 2', description: 'Description 2'},
-    'hash3': { keywords: ['keyword1', 'keyword5'], title: 'Title 3', description: 'Description 3'},
-    'search-not-found': {keywords: [], title: 'Search not found', description: 'No results found for your search query.'}
+  const mockIpfsContent = {
+    'QmdefaultHome': { 
+      keywords: ['home', 'inicio', 'principal'], 
+      title: 'Página Inicial', 
+      description: 'Página inicial da Internet 3.0',
+      type: 'webpage'
+    },
+    'QmSample1': { 
+      keywords: ['tutorial', 'ipfs', 'blockchain'], 
+      title: 'Tutorial IPFS', 
+      description: 'Guia básico sobre IPFS',
+      type: 'article'
+    },
+    'QmSample2': { 
+      keywords: ['blockchain', 'tech', 'descentralização'], 
+      title: 'Tecnologia Blockchain', 
+      description: 'Explicação sobre blockchain e IPFS',
+      type: 'article'
+    },
+    'search-not-found': {
+      keywords: [], 
+      title: 'Busca sem resultados', 
+      description: 'Nenhum resultado encontrado para sua busca.',
+      type: 'error'
+    }
   };
+
+  const searchTypes = ['webpage', 'article', 'image', 'video', 'audio'];
 
 
   const handleSubmit = (e: FormEvent) => {
