@@ -7,6 +7,14 @@
     @apply border-border;
   }
 
+  :root {
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --radius: 0.5rem;
+  }
+
 
 @keyframes progress {
   0% { width: 0%; }

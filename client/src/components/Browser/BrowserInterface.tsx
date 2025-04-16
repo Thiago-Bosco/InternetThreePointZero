@@ -382,7 +382,7 @@ export default function BrowserInterface() {
   const activeTab = activeTabId ? tabs.find(tab => tab.id === activeTabId) : null;
 
   return (
-    <div className="flex flex-col h-full bg-card rounded-lg border border-border overflow-hidden">
+    <div className="flex flex-col h-full bg-card overflow-hidden">
       <div className="flex items-center h-7 border-b border-border bg-muted/30">
         <TabManager 
           tabs={tabs}
