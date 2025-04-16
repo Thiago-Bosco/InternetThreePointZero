@@ -21,7 +21,7 @@ export default function TabManager({
   onCloseTab 
 }: TabManagerProps) {
   return (
-    <div className="flex items-center flex-1 h-10 overflow-hidden">
+    <div className="flex items-center flex-1 h-8 overflow-hidden">
       <ScrollArea className="flex-1 h-full" orientation="horizontal">
         <div className="flex h-full">
           {tabs.map((tab) => (
