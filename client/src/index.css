@@ -9,6 +9,8 @@
 
   :root {
     --radius: 0.75rem;
+    --transition-duration: 0.3s;
+    --animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
@@ -26,20 +28,68 @@
   body {
     @apply font-sans bg-background text-foreground overflow-x-hidden;
     text-rendering: optimizeLegibility;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   }
 
+  /* Animações refinadas */
+  @keyframes progress {
+    0% {
+      width: 0%;
+      opacity: 0.7;
+    }
 
-@keyframes progress {
-  0% { width: 0%; }
-  50% { width: 70%; }
-  100% { width: 100%; }
+    50% {
+      width: 70%;
+      opacity: 1;
+    }
+
+    100% {
+      width: 100%;
+      opacity: 0.7;
+    }
+  }
+
+  .animate-progress {
+    animation: progress 2s var(--animation-timing) infinite;
+  }
+
+  /* Adição de transições suaves */
+  a,
+  button,
+  input,
+  select,
+  textarea {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  /* Melhoria para foco em elementos interativos */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    @apply outline-none ring-2 ring-primary/50 ring-offset-2 ring-offset-background;
+  }
 }
 
-.animate-progress {
-  animation: progress 2s ease-in-out infinite;
-}
+/* Componentes personalizados */
+@layer components {
+  .container {
+    @apply px-4 mx-auto md:px-6 lg:px-8;
+    max-width: 1280px;
+  }
 
-  body {
-    @apply font-sans antialiased bg-background text-foreground;
+  .card {
+    @apply bg-card text-card-foreground rounded-lg border p-4 shadow-sm;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md font-medium;
+    @apply transition-colors duration-300 ease-in-out;
+    @apply disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
   }
 }
