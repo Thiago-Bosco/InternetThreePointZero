@@ -1,87 +1,218 @@
-
-import { ReactNode } from 'react';
-import { useLocation } from 'wouter';
-import { Home, Folder, MessageSquare, Rss, Shield, Settings, Download, Search, Star, Menu, Bell, User } from 'lucide-react';
+import { ReactNode, useState } from "react";
+import { useLocation, Link } from "wouter";
+import {
+  Home,
+  Folder,
+  MessageSquare,
+  Rss,
+  Shield,
+  Settings,
+  Download,
+  Search,
+  Star,
+  Menu,
+  Bell,
+  User,
+  X,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  RefreshCcw,
+  ArrowLeft,
+  ArrowRight,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface MainLayoutProps {
   children: ReactNode;
 }
 
+interface TabProps {
+  title: string;
+  active: boolean;
+  favicon?: string;
+  onClose: () => void;
+  onClick: () => void;
+}
+
+const Tab = ({ title, active, favicon, onClose, onClick }: TabProps) => (
+  <div
+    className={cn(
+      "flex items-center gap-2 px-3 py-2 rounded-t-lg border-t-2 border-l border-r cursor-pointer max-w-[180px] min-w-[120px]",
+      active
+        ? "bg-background border-border"
+        : "bg-card/50 border-transparent hover:bg-accent/30 transition-all",
+    )}
+    onClick={onClick}
+  >
+    {favicon ? (
+      <img src={favicon} alt="" className="w-4 h-4 rounded-full" />
+    ) : (
+      <div className="w-4 h-4 bg-primary/20 rounded-full flex items-center justify-center">
+        <span className="text-xs text-primary">{title.charAt(0)}</span>
+      </div>
+    )}
+    <span className="text-sm font-medium truncate flex-1">{title}</span>
+    <button
+      className="p-1 rounded-full hover:bg-accent transition-all"
+      onClick={(e) => {
+        e.stopPropagation();
+        onClose();
+      }}
+    >
+      <X size={14} />
+    </button>
+  </div>
+);
+
 export default function MainLayout({ children }: MainLayoutProps) {
   const [location] = useLocation();
+  const [tabs, setTabs] = useState([
+    { id: 1, title: "Nova guia", url: "/" },
+    { id: 2, title: "Microsoft Bing", url: "/bing" },
+    { id: 3, title: "GitHub", url: "/github" },
+  ]);
+  const [activeTabId, setActiveTabId] = useState(1);
+  const [searchValue, setSearchValue] = useState("");
+  const [bookmarks, setBookmarks] = useState([
+    { title: "GitHub", url: "/github" },
+    { title: "ChatGPT", url: "/chatgpt" },
+  ]);
 
-  const navItems = [
-    { href: '/', label: 'Navegador', icon: Home },
-    { href: '/files', label: 'Arquivos', icon: Folder },
-    { href: '/chat', label: 'Chat', icon: MessageSquare },
-    { href: '/feed', label: 'Feed', icon: Rss },
-    { href: '/identity', label: 'Identidade', icon: Shield },
-  ];
+  const handleTabClose = (id: number) => {
+    if (tabs.length > 1) {
+      setTabs(tabs.filter((tab) => tab.id !== id));
+      if (activeTabId === id) {
+        setActiveTabId(tabs[0].id === id ? tabs[1].id : tabs[0].id);
+      }
+    }
+  };
+
+  const handleNewTab = () => {
+    const newId = Math.max(...tabs.map((tab) => tab.id)) + 1;
+    setTabs([...tabs, { id: newId, title: "Nova guia", url: "/" }]);
+    setActiveTabId(newId);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <header className="h-14 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b flex items-center fixed top-0 w-full z-50">
-        <div className="container mx-auto flex items-center px-4">
-          <div className="flex items-center gap-4 flex-1">
-            <button className="p-2 hover:bg-accent rounded-full">
-              <Menu size={20} className="text-foreground" />
+      {/* Top Bar with Tabs */}
+      <header className="bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/30 flex flex-col">
+        {/* Tabs Row */}
+        <div className="flex items-end h-10 px-2 pt-1">
+          {tabs.map((tab) => (
+            <Tab
+              key={tab.id}
+              title={tab.title}
+              active={tab.id === activeTabId}
+              onClose={() => handleTabClose(tab.id)}
+              onClick={() => setActiveTabId(tab.id)}
+            />
+          ))}
+          <button
+            className="p-1 rounded-md hover:bg-accent ml-1 mt-1 transition-all"
+            onClick={handleNewTab}
+            title="Nova guia"
+          >
+            <Plus size={18} />
+          </button>
+        </div>
+
+        {/* Address and Controls Row */}
+        <div className="flex items-center gap-2 px-4 h-12 border-b border-border/50">
+          {/* Navigation Controls */}
+          <div className="flex items-center gap-1">
+            <button className="p-1.5 rounded-full hover:bg-accent text-muted-foreground transition-all">
+              <ArrowLeft size={18} />
             </button>
-            
+            <button className="p-1.5 rounded-full hover:bg-accent text-muted-foreground transition-all">
+              <ArrowRight size={18} />
+            </button>
+            <button className="p-1.5 rounded-full hover:bg-accent text-muted-foreground transition-all">
+              <RefreshCcw size={18} />
+            </button>
+            <button className="p-1.5 rounded-full hover:bg-accent text-muted-foreground transition-all">
+              <Home size={18} />
+            </button>
           </div>
-          
-          <div className="flex items-center gap-2">
-            <button className="p-2 hover:bg-accent rounded-full">
-              <Bell size={18} className="text-foreground" />
+
+          {/* Address Bar */}
+          <div className="flex-1 relative">
+            <div className="relative max-w-4xl mx-auto">
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1.5">
+                <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
+                  <span className="text-[10px] text-primary">
+                    {tabs
+                      .find((tab) => tab.id === activeTabId)
+                      ?.title.charAt(0)}
+                  </span>
+                </div>
+                <span className="text-xs text-muted-foreground">https://</span>
+              </div>
+              <input
+                type="text"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                className="w-full h-9 pl-20 pr-10 rounded-full bg-accent/50 border border-border/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 focus:outline-none transition-all"
+                placeholder="Pesquisar ou inserir endereço"
+              />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+                <button className="p-1 rounded-full hover:bg-accent/80 transition-all">
+                  <Star size={16} className="text-muted-foreground" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Controls */}
+          <div className="flex items-center gap-1">
+            <button className="p-1.5 rounded-full hover:bg-accent relative transition-all">
+              <Bell size={18} className="text-muted-foreground" />
+              <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-primary rounded-full"></span>
             </button>
-            <button className="p-2 hover:bg-accent rounded-full">
-              <Settings size={18} className="text-foreground" />
+            <button className="p-1.5 rounded-full hover:bg-accent transition-all">
+              <Settings size={18} className="text-muted-foreground" />
             </button>
-            <button className="ml-2 flex items-center gap-2 px-3 py-1.5 hover:bg-accent rounded-full">
-              <User size={18} className="text-foreground" />
-              <span className="text-sm font-medium">Perfil</span>
+            <button className="p-1.5 rounded-full hover:bg-accent transition-all">
+              <Menu size={18} className="text-muted-foreground" />
             </button>
+            <div className="ml-1 w-8 h-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
+              <User size={16} className="text-primary" />
+            </div>
+          </div>
+        </div>
+
+        {/* Bookmarks Bar */}
+        <div className="flex items-center h-8 px-4 text-xs text-muted-foreground bg-card/30 border-b border-border/30">
+          <div className="flex items-center gap-4">
+            {bookmarks.map((bookmark, index) => (
+              <a
+                key={index}
+                href={bookmark.url}
+                className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+              >
+                <div className="w-3.5 h-3.5 rounded-full bg-primary/15 flex items-center justify-center">
+                  <span className="text-[8px] text-primary/80">
+                    {bookmark.title.charAt(0)}
+                  </span>
+                </div>
+                <span>{bookmark.title}</span>
+              </a>
+            ))}
           </div>
         </div>
       </header>
 
-      <div className="flex-1 flex">
-        <nav className="w-16 bg-card/50 backdrop-blur fixed h-[calc(100vh-3.5rem)] top-14 flex flex-col items-center py-4 gap-2">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location === item.href;
+      {/* Content */}
+      <main className="flex-1 bg-background">{children}</main>
 
-            return (
-              <button
-                key={item.href}
-                onClick={() => window.location.href = item.href}
-                className={cn(
-                  "w-10 h-10 flex items-center justify-center rounded-xl transition-all",
-                  "hover:bg-accent hover:scale-105",
-                  isActive && "bg-primary/10 text-primary shadow-sm"
-                )}
-                title={item.label}
-              >
-                <Icon size={20} />
-              </button>
-            );
-          })}
-
-          <div className="mt-auto">
-            <button
-              className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-accent hover:scale-105 transition-all"
-              title="Baixar Navegador"
-              onClick={() => window.location.href = '/download'}
-            >
-              <Download size={20} />
-            </button>
-          </div>
-        </nav>
-
-        <main className="flex-1 ml-16 p-6 bg-background/50 mt-14">
-          {children}
-        </main>
-      </div>
+      {/* Status Bar */}
+      <footer className="h-6 bg-card/50 border-t border-border/30 flex items-center px-4">
+        <div className="text-xs text-muted-foreground flex items-center gap-4">
+          <span>Seguro</span>
+          <span>https://website.com</span>
+        </div>
+      </footer>
     </div>
   );
 }
