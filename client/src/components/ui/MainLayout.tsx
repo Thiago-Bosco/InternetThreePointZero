@@ -72,8 +72,6 @@ export default function MainLayout({ children }: MainLayoutProps) {
     const currentTab = tabs.find(tab => tab.id === activeTabId);
     
     try {
-      // Feedback visual de carregamento
-      const startTime = performance.now();
     
     if (url.startsWith('search:')) {
       const searchTerm = url.replace('search:', '');
@@ -87,56 +85,16 @@ export default function MainLayout({ children }: MainLayoutProps) {
     }
     
     if (currentTab) {
-    } catch (error) {
-      console.error('Erro na navegação:', error);
-      // Toast de erro
-      toast({
-        title: "Erro ao carregar página",
-        description: "Tente novamente mais tarde",
-        variant: "destructive"
-      });
     } finally {
-      const loadTime = performance.now() - startTime;
       setIsLoading(false);
-      
-      // Otimizar próxima navegação
-      if (loadTime > 2000) {
-        prefetchResources(url);
-      }
     }
-    
-    setTabs(tabs.map(tab => 
+      setTabs(tabs.map(tab => 
         tab.id === activeTabId 
           ? { ...tab, title: url, url: url }
           : tab
       ));
     }
   };
-
-  // Atalhos de teclado
-  useEffect(() => {
-    const handleKeyboard = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        switch(e.key) {
-          case 'l': // Focar barra de endereço
-            e.preventDefault();
-            document.querySelector('input[type="text"]')?.focus();
-            break;
-          case 't': // Nova aba
-            e.preventDefault();
-            handleNewTab();
-            break;
-          case 'w': // Fechar aba
-            e.preventDefault();
-            handleTabClose(activeTabId);
-            break;
-        }
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyboard);
-    return () => window.removeEventListener('keydown', handleKeyboard);
-  }, [activeTabId]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
