@@ -136,32 +136,13 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </button>
           </div>
 
-          {/* Address Bar */}
-          <div className="flex-1 relative">
-            <div className="relative max-w-4xl mx-auto">
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1.5">
-                <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
-                  <span className="text-[10px] text-primary">
-                    {tabs
-                      .find((tab) => tab.id === activeTabId)
-                      ?.title.charAt(0)}
-                  </span>
-                </div>
-                <span className="text-xs text-muted-foreground">https://</span>
-              </div>
-              <input
-                type="text"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                className="w-full h-9 pl-20 pr-10 rounded-full bg-accent/50 border border-border/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 focus:outline-none transition-all"
-                placeholder="Pesquisar ou inserir endereço"
-              />
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
-                <button className="p-1 rounded-full hover:bg-accent/80 transition-all">
-                  <Star size={16} className="text-muted-foreground" />
-                </button>
-              </div>
-            </div>
+          {/* Address Bar from AddressBar component */}
+          <div className="flex-1">
+            <AddressBar
+              url={activeTab?.url || ''}
+              isLoading={false}
+              onNavigate={(url) => console.log('Navigate to:', url)}
+            />
           </div>
 
           {/* Right Controls */}
