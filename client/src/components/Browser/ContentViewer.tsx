@@ -117,7 +117,7 @@ export default function ContentViewer({ ipfsHash, isLoading }: ContentViewerProp
   }
 
   return (
-    <div className="h-full overflow-auto bg-white dark:bg-zinc-900">
+    <div className="h-full overflow-auto bg-background">
       <div className="max-w-full mx-auto relative">
         <div 
           dangerouslySetInnerHTML={{ __html: content }} 
