@@ -21,6 +21,7 @@ export default function BrowserInterface() {
   const [tabs, setTabs] = useState<TabData[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [history, setHistory] = useState<{url: string; title: string; timestamp: number}[]>([]);
   const { isAuthenticated, currentUser } = useUser();
   const { toast } = useToast();
 
